@@ -23,13 +23,46 @@ final class NSAlertPresenter: AlertPresenting {
 @MainActor
 final class AppServices: ObservableObject {
     private let alertPresenter: AlertPresenting
+    private let coordinator: AppCoordinator
 
-    init(alertPresenter: AlertPresenting = NSAlertPresenter()) {
+    init(
+        alertPresenter: AlertPresenting = NSAlertPresenter(),
+        coordinator: AppCoordinator? = nil
+    ) {
         self.alertPresenter = alertPresenter
+        if let coordinator = coordinator {
+            self.coordinator = coordinator
+        } else {
+            let settings = SettingsStore(defaults: .standard)
+            let clipboard = AppClipboardService()
+            let overlays = AppOverlayManager() // We will create this in the next task
+            let permissions = AppPermissionManager()
+            let capture = AppCaptureEngine()
+            
+            self.coordinator = AppCoordinator(
+                settings: settings,
+                clipboard: clipboard,
+                overlays: overlays,
+                permissionManager: permissions,
+                captureEngine: capture
+            )
+        }
     }
 
     func perform(_ command: SleanShotCommand) {
-        alertPresenter.show(message: command.unavailableMessage)
+        Task {
+            do {
+                try await coordinator.handle(command)
+            } catch CaptureError.permissionDenied {
+                alertPresenter.show(message: "Screen Recording permission is required. Please grant it in System Settings and try again.")
+            } catch CaptureError.permissionNeedsRestart {
+                alertPresenter.show(message: "Screen Recording permission was just granted. Please restart SleanShot to enable screen capture.")
+            } catch CaptureError.captureFailed(let reason) {
+                alertPresenter.show(message: reason)
+            } catch {
+                alertPresenter.show(message: "An unknown error occurred.")
+            }
+        }
     }
 
     func quit() {
@@ -37,27 +70,22 @@ final class AppServices: ObservableObject {
     }
 }
 
-@MainActor
-final class AppClipboardService: ClipboardService {
-    nonisolated func copyImageData(_ data: Data) {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setData(data, forType: .png)
+final class AppClipboardService: @unchecked Sendable, ClipboardService {
+    private let lock = NSLock()
+    func copyImageData(_ data: Data) {
+        lock.withLock {
+            DispatchQueue.main.async {
+                let pasteboard = NSPasteboard.general
+                pasteboard.clearContents()
+                pasteboard.setData(data, forType: .png)
+            }
+        }
     }
 }
 
-@MainActor
-final class PlaceholderOverlayManager: OverlayManaging {
+final class AppOverlayManager: OverlayManaging {
+    @MainActor
     func pin(_ item: CaptureItem) {
-        // Real AppKit overlay windows are added in a later slice.
+        // Will implement in next task
     }
-}
-
-struct DummyPermissionManager: PermissionManaging {
-    var hasScreenCaptureAccess: Bool { true }
-    func requestScreenCaptureAccess() async -> Bool { true }
-}
-
-struct DummyCaptureEngine: CaptureEngine {
-    func captureFullScreen() async throws -> Data { Data() }
 }

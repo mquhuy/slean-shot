@@ -8,7 +8,14 @@ public struct AppCaptureEngine: CaptureEngine {
     public init() {}
     
     public func captureFullScreen() async throws -> Data {
-        guard let content = try? await SCShareableContent.current else {
+        let content: SCShareableContent
+        do {
+            if #available(macOS 14.4, *) {
+                content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
+            } else {
+                content = try await SCShareableContent.current
+            }
+        } catch {
             throw CaptureError.captureFailed("Could not get shareable content")
         }
         
@@ -25,10 +32,8 @@ public struct AppCaptureEngine: CaptureEngine {
         
         do {
             let cgImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
-            let nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
             
-            guard let tiffData = nsImage.tiffRepresentation,
-                  let bitmapImage = NSBitmapImageRep(data: tiffData),
+            guard let bitmapImage = NSBitmapImageRep(cgImage: cgImage),
                   let pngData = bitmapImage.representation(using: .png, properties: [:]) else {
                 throw CaptureError.captureFailed("Could not generate PNG data")
             }

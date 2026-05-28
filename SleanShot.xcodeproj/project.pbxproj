@@ -10,6 +10,10 @@
 		1A0000010000000000000001 /* SleanShotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000011 /* SleanShotApp.swift */; };
 		1A0000010000000000000002 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000012 /* SettingsView.swift */; };
 		1A0000010000000000000003 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000013 /* AppServices.swift */; };
+		1A0000010000000000000005 /* AppPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000014 /* AppPermissionManager.swift */; };
+		1A0000010000000000000006 /* AppCaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000015 /* AppCaptureEngine.swift */; };
+		1A0000010000000000000007 /* AppOverlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000016 /* AppOverlayManager.swift */; };
+		1A0000010000000000000008 /* PinnedOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000017 /* PinnedOverlayView.swift */; };
 		1A0000010000000000000004 /* SleanShotCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000010000000000000041 /* SleanShotCore */; };
 /* End PBXBuildFile section */
 
@@ -18,6 +22,10 @@
 		1A0000010000000000000011 /* SleanShotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SleanShotApp.swift; sourceTree = "<group>"; };
 		1A0000010000000000000012 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SettingsView.swift; sourceTree = "<group>"; };
 		1A0000010000000000000013 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppServices.swift; sourceTree = "<group>"; };
+		1A0000010000000000000014 /* AppPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppPermissionManager.swift; sourceTree = "<group>"; };
+		1A0000010000000000000015 /* AppCaptureEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppCaptureEngine.swift; sourceTree = "<group>"; };
+		1A0000010000000000000016 /* AppOverlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppOverlayManager.swift; sourceTree = "<group>"; };
+		1A0000010000000000000017 /* PinnedOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/PinnedOverlayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +54,10 @@
 				1A0000010000000000000011 /* SleanShotApp.swift */,
 				1A0000010000000000000012 /* SettingsView.swift */,
 				1A0000010000000000000013 /* AppServices.swift */,
+				1A0000010000000000000014 /* AppPermissionManager.swift */,
+				1A0000010000000000000015 /* AppCaptureEngine.swift */,
+				1A0000010000000000000016 /* AppOverlayManager.swift */,
+				1A0000010000000000000017 /* PinnedOverlayView.swift */,
 			);
 			name = SleanShotApp;
 			sourceTree = "<group>";
@@ -124,6 +136,10 @@
 				1A0000010000000000000001 /* SleanShotApp.swift in Sources */,
 				1A0000010000000000000002 /* SettingsView.swift in Sources */,
 				1A0000010000000000000003 /* AppServices.swift in Sources */,
+				1A0000010000000000000005 /* AppPermissionManager.swift in Sources */,
+				1A0000010000000000000006 /* AppCaptureEngine.swift in Sources */,
+				1A0000010000000000000007 /* AppOverlayManager.swift in Sources */,
+				1A0000010000000000000008 /* PinnedOverlayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

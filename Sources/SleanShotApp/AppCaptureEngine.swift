@@ -33,8 +33,8 @@ public struct AppCaptureEngine: CaptureEngine {
         do {
             let cgImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
             
-            guard let bitmapImage = NSBitmapImageRep(cgImage: cgImage),
-                  let pngData = bitmapImage.representation(using: .png, properties: [:]) else {
+            let bitmapImage = NSBitmapImageRep(cgImage: cgImage)
+            guard let pngData = bitmapImage.representation(using: .png, properties: [:]) else {
                 throw CaptureError.captureFailed("Could not generate PNG data")
             }
             

@@ -33,7 +33,7 @@ final class AppServices: ObservableObject {
         if let coordinator = coordinator {
             self.coordinator = coordinator
         } else {
-            let settings = SettingsStore(defaults: .standard)
+            let settings = SettingsStore()
             let clipboard = AppClipboardService()
             let overlays = AppOverlayManager() // We will create this in the next task
             let permissions = AppPermissionManager()

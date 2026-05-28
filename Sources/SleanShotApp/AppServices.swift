@@ -80,9 +80,4 @@ final class AppClipboardService: Sendable, ClipboardService {
     }
 }
 
-final class AppOverlayManager: OverlayManaging {
-    @MainActor
-    func pin(_ item: CaptureItem) {
-        // Will implement in next task
-    }
-}
+

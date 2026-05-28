@@ -13,6 +13,10 @@ let package = Package(
             targets: ["SleanShotCore"]
         ),
         .executable(
+            name: "SleanShotApp",
+            targets: ["SleanShotApp"]
+        ),
+        .executable(
             name: "SleanShotCoreTestRunner",
             targets: ["SleanShotCoreTestRunner"]
         )
@@ -20,6 +24,10 @@ let package = Package(
     targets: [
         .target(
             name: "SleanShotCore"
+        ),
+        .executableTarget(
+            name: "SleanShotApp",
+            dependencies: ["SleanShotCore"]
         ),
         .executableTarget(
             name: "SleanShotCoreTestRunner",

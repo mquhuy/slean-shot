@@ -1,28 +1,55 @@
 import Foundation
 
-public protocol ClipboardService: AnyObject {
+public protocol ClipboardService: Sendable {
     func copyImageData(_ data: Data)
 }
 
-public protocol OverlayManaging: AnyObject {
-    func pin(_ item: CaptureItem)
+public protocol OverlayManaging: Sendable {
+    @MainActor func pin(_ item: CaptureItem)
 }
 
-public final class AppCoordinator {
+public actor AppCoordinator {
     private let settings: SettingsStore
     private let clipboard: ClipboardService
     private let overlays: OverlayManaging
+    private let permissionManager: PermissionManaging
+    private let captureEngine: CaptureEngine
 
-    public init(settings: SettingsStore, clipboard: ClipboardService, overlays: OverlayManaging) {
+    public init(
+        settings: SettingsStore,
+        clipboard: ClipboardService,
+        overlays: OverlayManaging,
+        permissionManager: PermissionManaging,
+        captureEngine: CaptureEngine
+    ) {
         self.settings = settings
         self.clipboard = clipboard
         self.overlays = overlays
+        self.permissionManager = permissionManager
+        self.captureEngine = captureEngine
+    }
+
+    public func handle(_ command: SleanShotCommand) async throws {
+        switch command {
+        case .screenshotFullScreen:
+            guard permissionManager.hasScreenCaptureAccess else {
+                let granted = await permissionManager.requestScreenCaptureAccess()
+                if !granted { throw CaptureError.permissionDenied }
+                return // User needs to grant and likely restart app, or we abort for now.
+            }
+            
+            let data = try await captureEngine.captureFullScreen()
+            await receiveScreenshot(data)
+            
+        case .screenshotArea, .recordArea, .recordFullScreen:
+            throw CaptureError.captureFailed(command.unavailableMessage)
+        }
     }
 
     @discardableResult
-    public func receiveScreenshot(_ imageData: Data) -> CaptureItem {
+    public func receiveScreenshot(_ imageData: Data) async -> CaptureItem {
         let item = CaptureItem.screenshot(imageData: imageData)
-        overlays.pin(item)
+        await overlays.pin(item)
 
         if settings.autoCopyScreenshotToClipboard {
             clipboard.copyImageData(imageData)
@@ -30,11 +57,11 @@ public final class AppCoordinator {
 
         return item
     }
-
+    
     @discardableResult
-    public func receiveRecording(fileURL: URL, thumbnailData: Data?) -> CaptureItem {
+    public func receiveRecording(fileURL: URL, thumbnailData: Data?) async -> CaptureItem {
         let item = CaptureItem.recording(fileURL: fileURL, thumbnailData: thumbnailData)
-        overlays.pin(item)
+        await overlays.pin(item)
         return item
     }
 }

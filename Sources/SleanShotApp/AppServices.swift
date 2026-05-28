@@ -38,16 +38,26 @@ final class AppServices: ObservableObject {
 }
 
 @MainActor
-final class AppClipboardService: @MainActor ClipboardService {
-    func copyImageData(_ data: Data) {
+final class AppClipboardService: ClipboardService {
+    nonisolated func copyImageData(_ data: Data) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setData(data, forType: .png)
     }
 }
 
+@MainActor
 final class PlaceholderOverlayManager: OverlayManaging {
     func pin(_ item: CaptureItem) {
         // Real AppKit overlay windows are added in a later slice.
     }
+}
+
+struct DummyPermissionManager: PermissionManaging {
+    var hasScreenCaptureAccess: Bool { true }
+    func requestScreenCaptureAccess() async -> Bool { true }
+}
+
+struct DummyCaptureEngine: CaptureEngine {
+    func captureFullScreen() async throws -> Data { Data() }
 }

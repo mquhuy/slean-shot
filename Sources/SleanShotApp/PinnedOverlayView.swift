@@ -16,29 +16,31 @@ struct PinnedOverlayView: View {
                 Image(nsImage: img)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: 300, maxHeight: 300)
-                    .background(Color.red.opacity(0.5)) // Added so transparent captures are visible
+                    .frame(maxWidth: 400, maxHeight: 400)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .shadow(radius: 10)
-                
-                Text("\(Int(img.size.width))x\(Int(img.size.height))")
-                    .foregroundColor(.red)
-                    .background(Color.white)
-                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.white.opacity(0.8), lineWidth: 2)
+                    )
+                    .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
             } else {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.black.opacity(0.8))
-                    .frame(width: 300, height: 200)
+                    .frame(width: 400, height: 250)
             }
             
             Button(action: closeAction) {
                 Image(systemName: "xmark.circle.fill")
+                    .resizable()
+                    .frame(width: 20, height: 20)
                     .foregroundColor(.white)
-                    .padding(4)
+                    .background(Color.black.opacity(0.5))
+                    .clipShape(Circle())
             }
             .buttonStyle(.plain)
-            .padding(4)
+            .padding(8)
+            .offset(x: 4, y: -4)
         }
-        .padding(16) // Room for shadow
+        .padding(20) // Room for shadow
     }
 }

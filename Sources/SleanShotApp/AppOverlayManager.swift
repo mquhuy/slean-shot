@@ -14,7 +14,7 @@ public final class AppOverlayManager: OverlayManaging {
         }))
         
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 300),
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 440),
             styleMask: [.borderless, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -31,7 +31,7 @@ public final class AppOverlayManager: OverlayManaging {
         // Position at bottom right roughly
         if let screen = NSScreen.main {
             let screenFrame = screen.visibleFrame
-            let x = screenFrame.maxX - 350
+            let x = screenFrame.maxX - 460
             let y = screenFrame.minY + 50
             window.setFrameOrigin(NSPoint(x: x, y: y))
         }

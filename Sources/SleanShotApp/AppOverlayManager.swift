@@ -13,8 +13,20 @@ public final class AppOverlayManager: OverlayManaging {
             self?.close(item.id)
         }))
         
+        let screen = NSScreen.main
+        let screenWidth = screen?.frame.width ?? 1920
+        let screenHeight = screen?.frame.height ?? 1080
+        
+        // Target image size is about 12% of screen (a good "about 10%" visually)
+        let imgWidth = screenWidth * 0.12
+        let imgHeight = screenHeight * 0.12
+        
+        // Window size includes 40 points of padding for shadows and the close button
+        let winWidth = imgWidth + 40
+        let winHeight = imgHeight + 40
+        
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 440),
+            contentRect: NSRect(x: 0, y: 0, width: winWidth, height: winHeight),
             styleMask: [.borderless, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -28,11 +40,10 @@ public final class AppOverlayManager: OverlayManaging {
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.isMovableByWindowBackground = true
         
-        // Position at bottom right roughly
-        if let screen = NSScreen.main {
-            let screenFrame = screen.visibleFrame
-            let x = screenFrame.maxX - 460
-            let y = screenFrame.minY + 50
+        // Position at bottom right, just above the dock area
+        if let screen = screen {
+            let x = screen.visibleFrame.maxX - winWidth - 20
+            let y = screen.visibleFrame.minY + 20
             window.setFrameOrigin(NSPoint(x: x, y: y))
         }
         

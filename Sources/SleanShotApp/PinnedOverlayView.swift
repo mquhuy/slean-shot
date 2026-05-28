@@ -16,7 +16,7 @@ struct PinnedOverlayView: View {
                 Image(nsImage: img)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: 400, maxHeight: 400)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
@@ -26,7 +26,7 @@ struct PinnedOverlayView: View {
             } else {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.black.opacity(0.8))
-                    .frame(width: 400, height: 250)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
             Button(action: closeAction) {

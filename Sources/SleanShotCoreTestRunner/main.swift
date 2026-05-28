@@ -89,82 +89,153 @@ func testPackageDoesNotExposeNonBundledAppExecutable() {
     )
 }
 
-final class ClipboardSpy: ClipboardService {
-    var copiedImageData: [Data] = []
+struct MockPermissionManager: PermissionManaging {
+    var hasScreenCaptureAccess: Bool = true
+    func requestScreenCaptureAccess() async -> Bool { return true }
+}
 
-    func copyImageData(_ data: Data) {
-        copiedImageData.append(data)
+struct MockCaptureEngine: CaptureEngine {
+    func captureFullScreen() async throws -> Data {
+        return Data("mock_image".utf8)
     }
 }
 
-final class OverlaySpy: OverlayManaging {
+@MainActor
+final class MockOverlayManager: OverlayManaging {
     var pinnedItems: [CaptureItem] = []
-
     func pin(_ item: CaptureItem) {
         pinnedItems.append(item)
     }
 }
 
-func testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled() {
-    let clipboard = ClipboardSpy()
-    let overlays = OverlaySpy()
+final class MockClipboardService: @unchecked Sendable, ClipboardService {
+    private let lock = NSLock()
+    private var _copiedData: Data?
+    
+    var copiedData: Data? {
+        lock.lock()
+        defer { lock.unlock() }
+        return _copiedData
+    }
+    
+    func copyImageData(_ data: Data) {
+        lock.lock()
+        defer { lock.unlock() }
+        _copiedData = data
+    }
+}
+
+@MainActor
+func testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled() async {
+    let clipboard = MockClipboardService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
     let coordinator = AppCoordinator(
         settings: SettingsStore(autoCopyScreenshotToClipboard: true),
         clipboard: clipboard,
-        overlays: overlays
+        overlays: overlays,
+        permissionManager: permissions,
+        captureEngine: capture
     )
     let imageData = Data([0x0A, 0x0B])
 
-    let item = coordinator.receiveScreenshot(imageData)
-
+    let item = await coordinator.receiveScreenshot(imageData)
+    
     expect(item.kind == .screenshot, "Coordinator should create a screenshot item")
-    expect(overlays.pinnedItems == [item], "Coordinator should pin screenshot overlays")
-    expect(clipboard.copiedImageData == [imageData], "Coordinator should auto-copy screenshot image data")
+    let pinned = overlays.pinnedItems
+    expect(pinned == [item], "Coordinator should pin screenshot overlays")
+    let copied = clipboard.copiedData
+    expect(copied == imageData, "Coordinator should auto-copy screenshot image data")
 }
 
-func testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled() {
-    let clipboard = ClipboardSpy()
-    let overlays = OverlaySpy()
+@MainActor
+func testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled() async {
+    let clipboard = MockClipboardService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
     let coordinator = AppCoordinator(
         settings: SettingsStore(autoCopyScreenshotToClipboard: false),
         clipboard: clipboard,
-        overlays: overlays
+        overlays: overlays,
+        permissionManager: permissions,
+        captureEngine: capture
     )
 
-    _ = coordinator.receiveScreenshot(Data([0x0A, 0x0B]))
-
-    expect(clipboard.copiedImageData.isEmpty, "Coordinator should not copy screenshots when auto-copy is disabled")
+    _ = await coordinator.receiveScreenshot(Data([0x0A, 0x0B]))
+    
+    let copied = clipboard.copiedData
+    expect(copied == nil, "Coordinator should not copy screenshots when auto-copy is disabled")
 }
 
-func testCoordinatorPinsRecordingWithoutCopyingImageData() {
-    let clipboard = ClipboardSpy()
-    let overlays = OverlaySpy()
+@MainActor
+func testCoordinatorPinsRecordingWithoutCopyingImageData() async {
+    let clipboard = MockClipboardService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
     let coordinator = AppCoordinator(
         settings: SettingsStore(autoCopyScreenshotToClipboard: true),
         clipboard: clipboard,
-        overlays: overlays
+        overlays: overlays,
+        permissionManager: permissions,
+        captureEngine: capture
     )
     let recordingURL = URL(fileURLWithPath: "/tmp/recording.mov")
     let thumbnail = Data([0x03, 0x04])
 
-    let item = coordinator.receiveRecording(fileURL: recordingURL, thumbnailData: thumbnail)
-
+    let item = await coordinator.receiveRecording(fileURL: recordingURL, thumbnailData: thumbnail)
+    
     expect(item.kind == .recording, "Coordinator should create a recording item")
     expect(item.fileURL == recordingURL, "Recording item should keep its file URL")
     expect(item.thumbnailData == thumbnail, "Recording item should keep thumbnail data")
-    expect(overlays.pinnedItems == [item], "Coordinator should pin recording overlays")
-    expect(clipboard.copiedImageData.isEmpty, "Coordinator should not copy recordings as image data")
+    let pinned = overlays.pinnedItems
+    expect(pinned == [item], "Coordinator should pin recording overlays")
+    let copied = clipboard.copiedData
+    expect(copied == nil, "Coordinator should not copy recordings as image data")
 }
 
-testScreenshotCaptureItemsUseInMemoryImages()
-testRecordingCaptureItemsUseFileURLsAndThumbnails()
-testSettingsDefaultToAutoCopyScreenshotsEnabled()
-testMenuCommandsExposeExpectedTitles()
-testCaptureCommandsAreUnavailableUntilEnginesExist()
-testXcodeAppProjectDeclaresBundleIdentifier()
-testPackageDoesNotExposeNonBundledAppExecutable()
-testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
-testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
-testCoordinatorPinsRecordingWithoutCopyingImageData()
+@MainActor
+func testCoordinatorFullScreenCapture() async {
+    let settings = SettingsStore()
+    let clipboard = MockClipboardService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
+    
+    let coordinator = AppCoordinator(
+        settings: settings,
+        clipboard: clipboard,
+        overlays: overlays,
+        permissionManager: permissions,
+        captureEngine: capture
+    )
+    
+    try? await coordinator.handle(.screenshotFullScreen)
+    
+    let pinned = overlays.pinnedItems
+    expect(pinned.count == 1, "Should have pinned one item")
+    expect(pinned.first?.kind == .screenshot, "Item should be a screenshot")
+    expect(pinned.first?.imageData == Data("mock_image".utf8), "Item should have correct data")
+    print("testCoordinatorFullScreenCapture passed")
+}
 
-print("SleanShotCoreTestRunner passed")
+@MainActor
+func runTests() async {
+    testScreenshotCaptureItemsUseInMemoryImages()
+    testRecordingCaptureItemsUseFileURLsAndThumbnails()
+    testSettingsDefaultToAutoCopyScreenshotsEnabled()
+    testMenuCommandsExposeExpectedTitles()
+    testCaptureCommandsAreUnavailableUntilEnginesExist()
+    testXcodeAppProjectDeclaresBundleIdentifier()
+    testPackageDoesNotExposeNonBundledAppExecutable()
+    await testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
+    await testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
+    await testCoordinatorPinsRecordingWithoutCopyingImageData()
+    await testCoordinatorFullScreenCapture()
+    
+    print("SleanShotCoreTestRunner passed")
+}
+
+await runTests()

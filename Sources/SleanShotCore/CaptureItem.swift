@@ -1,11 +1,11 @@
 import Foundation
 
-public enum CaptureItemKind: Equatable {
+public enum CaptureItemKind: Equatable, Sendable {
     case screenshot
     case recording
 }
 
-public struct CaptureItem: Equatable, Identifiable {
+public struct CaptureItem: Equatable, Identifiable, Sendable {
     public let id: UUID
     public let kind: CaptureItemKind
     public let imageData: Data?

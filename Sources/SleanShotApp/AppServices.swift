@@ -70,15 +70,12 @@ final class AppServices: ObservableObject {
     }
 }
 
-final class AppClipboardService: @unchecked Sendable, ClipboardService {
-    private let lock = NSLock()
+final class AppClipboardService: Sendable, ClipboardService {
     func copyImageData(_ data: Data) {
-        lock.withLock {
-            DispatchQueue.main.async {
-                let pasteboard = NSPasteboard.general
-                pasteboard.clearContents()
-                pasteboard.setData(data, forType: .png)
-            }
+        DispatchQueue.main.async {
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setData(data, forType: .png)
         }
     }
 }

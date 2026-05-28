@@ -62,6 +62,33 @@ func testCaptureCommandsAreUnavailableUntilEnginesExist() {
     )
 }
 
+func testXcodeAppProjectDeclaresBundleIdentifier() {
+    let projectPath = "SleanShot.xcodeproj/project.pbxproj"
+    guard FileManager.default.fileExists(atPath: projectPath) else {
+        fatalError("SleanShot.xcodeproj should exist for Xcode to run a bundled macOS app")
+    }
+
+    guard let project = try? String(contentsOfFile: projectPath, encoding: .utf8) else {
+        fatalError("SleanShot.xcodeproj/project.pbxproj should be readable")
+    }
+
+    expect(
+        project.contains("PRODUCT_BUNDLE_IDENTIFIER = com.huy.SleanShot;"),
+        "Xcode app target should declare a main bundle identifier"
+    )
+}
+
+func testPackageDoesNotExposeNonBundledAppExecutable() {
+    guard let manifest = try? String(contentsOfFile: "Package.swift", encoding: .utf8) else {
+        fatalError("Package.swift should be readable")
+    }
+
+    expect(
+        !manifest.contains("name: \"SleanShotApp\""),
+        "SwiftPM should not expose a non-bundled SleanShotApp executable that Xcode can run by mistake"
+    )
+}
+
 final class ClipboardSpy: ClipboardService {
     var copiedImageData: [Data] = []
 
@@ -134,6 +161,8 @@ testRecordingCaptureItemsUseFileURLsAndThumbnails()
 testSettingsDefaultToAutoCopyScreenshotsEnabled()
 testMenuCommandsExposeExpectedTitles()
 testCaptureCommandsAreUnavailableUntilEnginesExist()
+testXcodeAppProjectDeclaresBundleIdentifier()
+testPackageDoesNotExposeNonBundledAppExecutable()
 testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
 testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
 testCoordinatorPinsRecordingWithoutCopyingImageData()

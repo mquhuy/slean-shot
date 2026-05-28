@@ -18,6 +18,7 @@ DerivedData/
 
 # Local agent/tooling state
 .agents/
+.worktrees/
 skills-lock.json
 
 # Editor swap/temp files

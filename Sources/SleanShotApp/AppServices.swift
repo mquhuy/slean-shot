@@ -37,7 +37,8 @@ final class AppServices: ObservableObject {
     }
 }
 
-final class AppClipboardService: ClipboardService {
+@MainActor
+final class AppClipboardService: @MainActor ClipboardService {
     func copyImageData(_ data: Data) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()

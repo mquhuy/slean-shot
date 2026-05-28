@@ -100,23 +100,32 @@ struct MockCaptureEngine: CaptureEngine {
     }
 }
 
-actor MockOverlayManager: OverlayManaging {
+@MainActor
+final class MockOverlayManager: OverlayManaging {
     var pinnedItems: [CaptureItem] = []
-    @MainActor func pin(_ item: CaptureItem) {
-        Task { await append(item) }
-    }
-    func append(_ item: CaptureItem) {
+    func pin(_ item: CaptureItem) {
         pinnedItems.append(item)
     }
 }
 
 final class MockClipboardService: @unchecked Sendable, ClipboardService {
-    var copiedData: Data?
+    private let lock = NSLock()
+    private var _copiedData: Data?
+    
+    var copiedData: Data? {
+        lock.lock()
+        defer { lock.unlock() }
+        return _copiedData
+    }
+    
     func copyImageData(_ data: Data) {
-        copiedData = data
+        lock.lock()
+        defer { lock.unlock() }
+        _copiedData = data
     }
 }
 
+@MainActor
 func testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled() async {
     let clipboard = MockClipboardService()
     let overlays = MockOverlayManager()
@@ -133,16 +142,14 @@ func testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled() async {
 
     let item = await coordinator.receiveScreenshot(imageData)
     
-    // Give time for MainActor call to bounce to actor
-    try? await Task.sleep(nanoseconds: 50_000_000)
-
     expect(item.kind == .screenshot, "Coordinator should create a screenshot item")
-    let pinned = await overlays.pinnedItems
+    let pinned = overlays.pinnedItems
     expect(pinned == [item], "Coordinator should pin screenshot overlays")
     let copied = clipboard.copiedData
     expect(copied == imageData, "Coordinator should auto-copy screenshot image data")
 }
 
+@MainActor
 func testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled() async {
     let clipboard = MockClipboardService()
     let overlays = MockOverlayManager()
@@ -162,6 +169,7 @@ func testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled() async {
     expect(copied == nil, "Coordinator should not copy screenshots when auto-copy is disabled")
 }
 
+@MainActor
 func testCoordinatorPinsRecordingWithoutCopyingImageData() async {
     let clipboard = MockClipboardService()
     let overlays = MockOverlayManager()
@@ -179,17 +187,16 @@ func testCoordinatorPinsRecordingWithoutCopyingImageData() async {
 
     let item = await coordinator.receiveRecording(fileURL: recordingURL, thumbnailData: thumbnail)
     
-    try? await Task.sleep(nanoseconds: 50_000_000)
-
     expect(item.kind == .recording, "Coordinator should create a recording item")
     expect(item.fileURL == recordingURL, "Recording item should keep its file URL")
     expect(item.thumbnailData == thumbnail, "Recording item should keep thumbnail data")
-    let pinned = await overlays.pinnedItems
+    let pinned = overlays.pinnedItems
     expect(pinned == [item], "Coordinator should pin recording overlays")
     let copied = clipboard.copiedData
     expect(copied == nil, "Coordinator should not copy recordings as image data")
 }
 
+@MainActor
 func testCoordinatorFullScreenCapture() async {
     let settings = SettingsStore()
     let clipboard = MockClipboardService()
@@ -207,15 +214,14 @@ func testCoordinatorFullScreenCapture() async {
     
     try? await coordinator.handle(.screenshotFullScreen)
     
-    try? await Task.sleep(nanoseconds: 50_000_000)
-    
-    let pinned = await overlays.pinnedItems
+    let pinned = overlays.pinnedItems
     expect(pinned.count == 1, "Should have pinned one item")
     expect(pinned.first?.kind == .screenshot, "Item should be a screenshot")
     expect(pinned.first?.imageData == Data("mock_image".utf8), "Item should have correct data")
     print("testCoordinatorFullScreenCapture passed")
 }
 
+@MainActor
 func runTests() async {
     testScreenshotCaptureItemsUseInMemoryImages()
     testRecordingCaptureItemsUseFileURLsAndThumbnails()

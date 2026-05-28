@@ -35,7 +35,7 @@ public actor AppCoordinator {
             guard permissionManager.hasScreenCaptureAccess else {
                 let granted = await permissionManager.requestScreenCaptureAccess()
                 if !granted { throw CaptureError.permissionDenied }
-                return // User needs to grant and likely restart app, or we abort for now.
+                throw CaptureError.permissionNeedsRestart
             }
             
             let data = try await captureEngine.captureFullScreen()

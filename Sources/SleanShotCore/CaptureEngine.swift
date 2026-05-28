@@ -6,5 +6,6 @@ public protocol CaptureEngine: Sendable {
 
 public enum CaptureError: Error, Equatable {
     case permissionDenied
+    case permissionNeedsRestart
     case captureFailed(String)
 }

@@ -5,6 +5,7 @@
 
 # Swift Package Manager
 .build/
+.swiftpm/
 .swiftpm/configuration/registries.json
 .swiftpm/configuration/security.json
 

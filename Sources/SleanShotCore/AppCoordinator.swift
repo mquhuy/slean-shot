@@ -33,9 +33,8 @@ public actor AppCoordinator {
         switch command {
         case .screenshotFullScreen:
             guard permissionManager.hasScreenCaptureAccess else {
-                let granted = await permissionManager.requestScreenCaptureAccess()
-                if !granted { throw CaptureError.permissionDenied }
-                throw CaptureError.permissionNeedsRestart
+                _ = await permissionManager.requestScreenCaptureAccess()
+                throw CaptureError.permissionDenied
             }
             
             let data = try await captureEngine.captureFullScreen()

@@ -54,7 +54,7 @@ final class AppServices: ObservableObject {
             do {
                 try await coordinator.handle(command)
             } catch CaptureError.permissionDenied {
-                alertPresenter.show(message: "Screen Recording permission is required. Please grant it in System Settings and try again.")
+                alertPresenter.show(message: "Screen Recording permission is required. Please grant it in System Settings.\n\nIf you just granted it, you MUST restart SleanShot for it to take effect.")
             } catch CaptureError.permissionNeedsRestart {
                 alertPresenter.show(message: "Screen Recording permission was just granted. Please restart SleanShot to enable screen capture.")
             } catch CaptureError.captureFailed(let reason) {

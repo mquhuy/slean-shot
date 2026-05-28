@@ -34,6 +34,34 @@ func testSettingsDefaultToAutoCopyScreenshotsEnabled() {
     expect(settings.autoCopyScreenshotToClipboard, "Settings should auto-copy screenshots by default")
 }
 
+func testMenuCommandsExposeExpectedTitles() {
+    let titles = SleanShotCommand.menuCommands.map(\.title)
+
+    expect(
+        titles == [
+            "Screenshot Area",
+            "Screenshot Full Screen",
+            "Record Area",
+            "Record Full Screen"
+        ],
+        "Menu commands should expose capture and recording actions in MVP order"
+    )
+}
+
+func testCaptureCommandsAreUnavailableUntilEnginesExist() {
+    let unavailableMessages = SleanShotCommand.menuCommands.map(\.unavailableMessage)
+
+    expect(
+        unavailableMessages == [
+            "Area screenshots are not implemented yet.",
+            "Full-screen screenshots are not implemented yet.",
+            "Area recording is not implemented yet.",
+            "Full-screen recording is not implemented yet."
+        ],
+        "Menu commands should be honest placeholders until capture engines exist"
+    )
+}
+
 final class ClipboardSpy: ClipboardService {
     var copiedImageData: [Data] = []
 
@@ -104,6 +132,8 @@ func testCoordinatorPinsRecordingWithoutCopyingImageData() {
 testScreenshotCaptureItemsUseInMemoryImages()
 testRecordingCaptureItemsUseFileURLsAndThumbnails()
 testSettingsDefaultToAutoCopyScreenshotsEnabled()
+testMenuCommandsExposeExpectedTitles()
+testCaptureCommandsAreUnavailableUntilEnginesExist()
 testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
 testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
 testCoordinatorPinsRecordingWithoutCopyingImageData()

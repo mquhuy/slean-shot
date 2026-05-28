@@ -36,7 +36,7 @@ public final class AppOverlayManager: OverlayManaging {
             window.setFrameOrigin(NSPoint(x: x, y: y))
         }
         
-        window.makeKeyAndOrderFront(nil)
+        window.orderFront(nil)
         windows[item.id] = window
     }
     

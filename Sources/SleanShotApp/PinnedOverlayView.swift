@@ -17,6 +17,7 @@ struct PinnedOverlayView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 300, maxHeight: 300)
+                    .background(Color.white.opacity(0.1)) // Added so transparent captures are visible
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .shadow(radius: 10)
             } else {

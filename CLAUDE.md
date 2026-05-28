@@ -195,17 +195,17 @@ Recordings must be streamed/written to disk. Pinned recording overlays should sh
 
 ## Suggested Implementation Order
 
-1. Create native macOS app shell.
-2. Add Screen Recording permission/onboarding flow.
-3. Implement full-screen screenshot.
-4. Add pinned overlay window for screenshots.
-5. Add copy/save/drop actions for screenshot overlays.
-6. Add selected-area screenshot.
-7. Implement reliable overlay exclusion from future captures.
-8. Add full-screen recording.
-9. Add selected-area recording.
-10. Add screenshot annotation editor.
-11. Add settings screen with auto-copy toggle.
+1. [x] Create native macOS app shell.
+2. [x] Add Screen Recording permission/onboarding flow.
+3. [x] Implement full-screen screenshot.
+4. [x] Add pinned overlay window for screenshots.
+5. [ ] Add copy/save/drop actions for screenshot overlays.
+6. [ ] Add selected-area screenshot.
+7. [ ] Implement reliable overlay exclusion from future captures.
+8. [ ] Add full-screen recording.
+9. [ ] Add selected-area recording.
+10. [ ] Add screenshot annotation editor.
+11. [ ] Add settings screen with auto-copy toggle.
 
 ## Non-Goals for MVP
 

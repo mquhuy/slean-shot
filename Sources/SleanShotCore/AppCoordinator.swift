@@ -38,6 +38,7 @@ public actor AppCoordinator {
             }
             
             let data = try await captureEngine.captureFullScreen()
+            try? data.write(to: URL(fileURLWithPath: ("/Users/huy/Desktop/debug_screenshot.png")))
             await receiveScreenshot(data)
             
         case .screenshotArea, .recordArea, .recordFullScreen:

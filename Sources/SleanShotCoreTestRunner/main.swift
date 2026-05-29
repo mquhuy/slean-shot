@@ -98,6 +98,43 @@ func testOverlayPreviewLayoutUsesScreenProportionPlusPadding() {
     expect(abs(layout.windowHeight - 299.2) < 0.001, "Window height should include vertical padding")
 }
 
+func testCaptureAreaNormalizesDragPoints() {
+    let display = CaptureDisplay(id: 7, frame: CaptureRect(x: 0, y: 0, width: 800, height: 600), scaleFactor: 2)
+
+    let area = CaptureArea.fromDrag(
+        display: display,
+        start: CapturePoint(x: 300, y: 220),
+        end: CapturePoint(x: 120, y: 80)
+    )
+
+    expect(area?.rect == CaptureRect(x: 120, y: 80, width: 180, height: 140), "Drag points should normalize to a positive rectangle")
+    expect(area?.display == display, "Area should keep the selected display")
+}
+
+func testCaptureAreaRejectsTinySelections() {
+    let display = CaptureDisplay(id: 7, frame: CaptureRect(x: 0, y: 0, width: 800, height: 600), scaleFactor: 2)
+
+    let area = CaptureArea.fromDrag(
+        display: display,
+        start: CapturePoint(x: 100, y: 100),
+        end: CapturePoint(x: 104, y: 106)
+    )
+
+    expect(area == nil, "Tiny accidental drags should cancel selection")
+}
+
+func testCaptureAreaClampsToDisplayBounds() {
+    let display = CaptureDisplay(id: 7, frame: CaptureRect(x: 0, y: 0, width: 800, height: 600), scaleFactor: 2)
+
+    let area = CaptureArea.fromDrag(
+        display: display,
+        start: CapturePoint(x: 760, y: 560),
+        end: CapturePoint(x: 900, y: 700)
+    )
+
+    expect(area?.rect == CaptureRect(x: 760, y: 560, width: 40, height: 40), "Selection should clamp to the display frame")
+}
+
 struct MockPermissionManager: PermissionManaging {
     var hasScreenCaptureAccess: Bool = true
     func requestScreenCaptureAccess() async -> Bool { return true }
@@ -335,6 +372,9 @@ func runTests() async {
     testXcodeAppProjectDeclaresBundleIdentifier()
     testPackageDoesNotExposeNonBundledAppExecutable()
     testOverlayPreviewLayoutUsesScreenProportionPlusPadding()
+    testCaptureAreaNormalizesDragPoints()
+    testCaptureAreaRejectsTinySelections()
+    testCaptureAreaClampsToDisplayBounds()
     await testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
     await testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
     await testCoordinatorPinsRecordingWithoutCopyingImageData()

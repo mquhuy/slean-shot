@@ -14,6 +14,7 @@ struct SleanShotApp: App {
                 Button(command.title) {
                     services.perform(command)
                 }
+                .keyboardShortcut(KeyEquivalent(command.keyEquivalent), modifiers: [.command, .control])
             }
 
             Divider()

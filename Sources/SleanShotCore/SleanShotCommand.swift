@@ -20,6 +20,15 @@ public enum SleanShotCommand: CaseIterable, Equatable, Sendable, CustomStringCon
         .recordFullScreen
     ]
 
+    public var keyEquivalent: Character {
+        switch self {
+        case .screenshotArea: "s"
+        case .screenshotFullScreen: "f"
+        case .recordArea: "r"
+        case .recordFullScreen: "g"
+        }
+    }
+
     public var title: String {
         switch self {
         case .screenshotArea:

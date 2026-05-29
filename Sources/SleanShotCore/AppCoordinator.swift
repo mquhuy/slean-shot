@@ -5,13 +5,15 @@ public protocol ClipboardService: Sendable {
 }
 
 public protocol OverlayManaging: Sendable {
-    @MainActor func pin(_ item: CaptureItem)
+    @MainActor func pin(_ item: CaptureItem, actions: OverlayActions)
+    @MainActor func remove(_ id: UUID)
 }
 
 public actor AppCoordinator {
     private let settings: SettingsStore
     private let clipboard: ClipboardService
     private let overlays: OverlayManaging
+    private let fileExport: FileExportService
     private let permissionManager: PermissionManaging
     private let captureEngine: CaptureEngine
 
@@ -19,12 +21,14 @@ public actor AppCoordinator {
         settings: SettingsStore,
         clipboard: ClipboardService,
         overlays: OverlayManaging,
+        fileExport: FileExportService,
         permissionManager: PermissionManaging,
         captureEngine: CaptureEngine
     ) {
         self.settings = settings
         self.clipboard = clipboard
         self.overlays = overlays
+        self.fileExport = fileExport
         self.permissionManager = permissionManager
         self.captureEngine = captureEngine
     }
@@ -38,7 +42,6 @@ public actor AppCoordinator {
             }
             
             let data = try await captureEngine.captureFullScreen()
-            try? data.write(to: URL(fileURLWithPath: ("/Users/huy/Desktop/debug_screenshot.png")))
             await receiveScreenshot(data)
             
         case .screenshotArea, .recordArea, .recordFullScreen:
@@ -49,7 +52,19 @@ public actor AppCoordinator {
     @discardableResult
     public func receiveScreenshot(_ imageData: Data) async -> CaptureItem {
         let item = CaptureItem.screenshot(imageData: imageData)
-        await overlays.pin(item)
+        let actions = OverlayActions(
+            copy: { [clipboard] in
+                clipboard.copyImageData(imageData)
+            },
+            save: { [fileExport] in
+                fileExport.saveImageData(imageData)
+            },
+            drop: { [overlays, id = item.id] in
+                overlays.remove(id)
+            }
+        )
+
+        await overlays.pin(item, actions: actions)
 
         if settings.autoCopyScreenshotToClipboard {
             clipboard.copyImageData(imageData)
@@ -61,7 +76,15 @@ public actor AppCoordinator {
     @discardableResult
     public func receiveRecording(fileURL: URL, thumbnailData: Data?) async -> CaptureItem {
         let item = CaptureItem.recording(fileURL: fileURL, thumbnailData: thumbnailData)
-        await overlays.pin(item)
+        let actions = OverlayActions(
+            copy: {},
+            save: {},
+            drop: { [overlays, id = item.id] in
+                overlays.remove(id)
+            }
+        )
+
+        await overlays.pin(item, actions: actions)
         return item
     }
 }

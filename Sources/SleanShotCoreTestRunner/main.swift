@@ -103,8 +103,34 @@ struct MockCaptureEngine: CaptureEngine {
 @MainActor
 final class MockOverlayManager: OverlayManaging {
     var pinnedItems: [CaptureItem] = []
-    func pin(_ item: CaptureItem) {
+    var actionsByID: [UUID: OverlayActions] = [:]
+    var removedIDs: [UUID] = []
+
+    func pin(_ item: CaptureItem, actions: OverlayActions) {
         pinnedItems.append(item)
+        actionsByID[item.id] = actions
+    }
+
+    func remove(_ id: UUID) {
+        removedIDs.append(id)
+    }
+}
+
+final class MockFileExportService: @unchecked Sendable, FileExportService {
+    private var _savedData: Data?
+    private let lock = NSLock()
+
+    var savedData: Data? {
+        lock.lock()
+        defer { lock.unlock() }
+        return _savedData
+    }
+
+    @MainActor
+    func saveImageData(_ data: Data) {
+        lock.lock()
+        defer { lock.unlock() }
+        _savedData = data
     }
 }
 
@@ -126,6 +152,39 @@ final class MockClipboardService: @unchecked Sendable, ClipboardService {
 }
 
 @MainActor
+func testOverlayActionsCopySaveDrop() async {
+    let clipboard = MockClipboardService()
+    let exporter = MockFileExportService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
+
+    let coordinator = AppCoordinator(
+        settings: SettingsStore(autoCopyScreenshotToClipboard: false),
+        clipboard: clipboard,
+        overlays: overlays,
+        fileExport: exporter,
+        permissionManager: permissions,
+        captureEngine: capture
+    )
+
+    let imageData = Data([0xDE, 0xAD, 0xBE, 0xEF])
+    let item = await coordinator.receiveScreenshot(imageData)
+
+    guard let actions = overlays.actionsByID[item.id] else {
+        fatalError("Overlay actions should be created")
+    }
+
+    actions.copy()
+    actions.save()
+    actions.drop()
+
+    expect(clipboard.copiedData == imageData, "Copy should write image data to clipboard")
+    expect(exporter.savedData == imageData, "Save should pass image data to export service")
+    expect(overlays.removedIDs == [item.id], "Drop should remove the overlay")
+}
+
+@MainActor
 func testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled() async {
     let clipboard = MockClipboardService()
     let overlays = MockOverlayManager()
@@ -135,6 +194,7 @@ func testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled() async {
         settings: SettingsStore(autoCopyScreenshotToClipboard: true),
         clipboard: clipboard,
         overlays: overlays,
+        fileExport: MockFileExportService(),
         permissionManager: permissions,
         captureEngine: capture
     )
@@ -159,6 +219,7 @@ func testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled() async {
         settings: SettingsStore(autoCopyScreenshotToClipboard: false),
         clipboard: clipboard,
         overlays: overlays,
+        fileExport: MockFileExportService(),
         permissionManager: permissions,
         captureEngine: capture
     )
@@ -179,6 +240,7 @@ func testCoordinatorPinsRecordingWithoutCopyingImageData() async {
         settings: SettingsStore(autoCopyScreenshotToClipboard: true),
         clipboard: clipboard,
         overlays: overlays,
+        fileExport: MockFileExportService(),
         permissionManager: permissions,
         captureEngine: capture
     )
@@ -208,6 +270,7 @@ func testCoordinatorFullScreenCapture() async {
         settings: settings,
         clipboard: clipboard,
         overlays: overlays,
+        fileExport: MockFileExportService(),
         permissionManager: permissions,
         captureEngine: capture
     )
@@ -233,6 +296,7 @@ func runTests() async {
     await testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
     await testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
     await testCoordinatorPinsRecordingWithoutCopyingImageData()
+    await testOverlayActionsCopySaveDrop()
     await testCoordinatorFullScreenCapture()
     
     print("SleanShotCoreTestRunner passed")

@@ -4,7 +4,7 @@ import Foundation
 import SleanShotCore
 
 @MainActor
-protocol AlertPresenting: AnyObject {
+protocol AlertPresenting: AnyObject, Sendable {
     func show(message: String)
 }
 
@@ -34,9 +34,9 @@ final class AppServices: ObservableObject {
             self.coordinator = coordinator
         } else {
             let settings = SettingsStore()
-            let clipboard = AppClipboardService()
+            let clipboard = AppClipboardService(alertPresenter: alertPresenter)
             let overlays = AppOverlayManager() // We will create this in the next task
-            let fileExport = AppFileExportService()
+            let fileExport = AppFileExportService(alertPresenter: alertPresenter)
             let permissions = AppPermissionManager()
             let capture = AppCaptureEngine()
             
@@ -73,17 +73,19 @@ final class AppServices: ObservableObject {
 }
 
 final class AppClipboardService: Sendable, ClipboardService {
+    private let alertPresenter: AlertPresenting
+
+    init(alertPresenter: AlertPresenting) {
+        self.alertPresenter = alertPresenter
+    }
+
     func copyImageData(_ data: Data) {
-        DispatchQueue.main.async {
+        Task { @MainActor [alertPresenter] in
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
-            pasteboard.setData(data, forType: .png)
+            if !pasteboard.setData(data, forType: .png) {
+                alertPresenter.show(message: "Copy failed. Please try again.")
+            }
         }
     }
 }
-
-final class AppFileExportService: Sendable, FileExportService {
-    @MainActor
-    func saveImageData(_ data: Data) {}
-}
-

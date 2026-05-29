@@ -14,6 +14,7 @@
 		1A0000010000000000000006 /* AppCaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000015 /* AppCaptureEngine.swift */; };
 		1A0000010000000000000007 /* AppOverlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000016 /* AppOverlayManager.swift */; };
 		1A0000010000000000000008 /* PinnedOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000017 /* PinnedOverlayView.swift */; };
+		1A0000010000000000000009 /* AppFileExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000018 /* AppFileExportService.swift */; };
 		1A0000010000000000000004 /* SleanShotCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000010000000000000041 /* SleanShotCore */; };
 /* End PBXBuildFile section */
 
@@ -26,6 +27,7 @@
 		1A0000010000000000000015 /* AppCaptureEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppCaptureEngine.swift; sourceTree = "<group>"; };
 		1A0000010000000000000016 /* AppOverlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppOverlayManager.swift; sourceTree = "<group>"; };
 		1A0000010000000000000017 /* PinnedOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/PinnedOverlayView.swift; sourceTree = "<group>"; };
+		1A0000010000000000000018 /* AppFileExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppFileExportService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 				1A0000010000000000000015 /* AppCaptureEngine.swift */,
 				1A0000010000000000000016 /* AppOverlayManager.swift */,
 				1A0000010000000000000017 /* PinnedOverlayView.swift */,
+				1A0000010000000000000018 /* AppFileExportService.swift */,
 			);
 			name = SleanShotApp;
 			sourceTree = "<group>";
@@ -140,6 +143,7 @@
 				1A0000010000000000000006 /* AppCaptureEngine.swift in Sources */,
 				1A0000010000000000000007 /* AppOverlayManager.swift in Sources */,
 				1A0000010000000000000008 /* PinnedOverlayView.swift in Sources */,
+				1A0000010000000000000009 /* AppFileExportService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

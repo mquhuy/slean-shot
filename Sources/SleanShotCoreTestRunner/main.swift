@@ -98,6 +98,15 @@ func testOverlayPreviewLayoutUsesScreenProportionPlusPadding() {
     expect(abs(layout.windowHeight - 299.2) < 0.001, "Window height should include vertical padding")
 }
 
+func testSelectionGatePreventsReentry() {
+    var gate = SelectionGate()
+
+    expect(gate.begin(), "First selection should start")
+    expect(!gate.begin(), "Second selection should be blocked until end")
+    gate.end()
+    expect(gate.begin(), "Selection should start again after end")
+}
+
 func testCaptureAreaNormalizesDragPoints() {
     let display = CaptureDisplay(id: 7, frame: CaptureRect(x: 0, y: 0, width: 800, height: 600), scaleFactor: 2)
 
@@ -450,6 +459,7 @@ func runTests() async {
     testXcodeAppProjectDeclaresBundleIdentifier()
     testPackageDoesNotExposeNonBundledAppExecutable()
     testOverlayPreviewLayoutUsesScreenProportionPlusPadding()
+    testSelectionGatePreventsReentry()
     testCaptureAreaNormalizesDragPoints()
     testCaptureAreaRejectsTinySelections()
     testCaptureAreaClampsToDisplayBounds()

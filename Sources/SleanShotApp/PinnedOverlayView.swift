@@ -30,9 +30,9 @@ struct PinnedOverlayView: View {
             }
 
             HStack(spacing: 8) {
-                actionButton(systemName: "doc.on.doc", action: actions.copy)
-                actionButton(systemName: "square.and.arrow.down", action: actions.save)
-                actionButton(systemName: "trash", action: actions.drop)
+                actionButton(systemName: "doc.on.doc", accessibilityLabel: "Copy", action: actions.copy)
+                actionButton(systemName: "square.and.arrow.down", accessibilityLabel: "Save", action: actions.save)
+                actionButton(systemName: "trash", accessibilityLabel: "Drop", action: actions.drop)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
@@ -51,6 +51,7 @@ struct PinnedOverlayView: View {
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Close")
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
             .padding(8)
             .offset(x: 4, y: -4)
@@ -58,7 +59,7 @@ struct PinnedOverlayView: View {
         .padding(20) // Room for shadow
     }
 
-    private func actionButton(systemName: String, action: @escaping @MainActor @Sendable () -> Void) -> some View {
+    private func actionButton(systemName: String, accessibilityLabel: String, action: @escaping @MainActor @Sendable () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
                 .resizable()
@@ -67,5 +68,6 @@ struct PinnedOverlayView: View {
                 .foregroundColor(.white)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
     }
 }

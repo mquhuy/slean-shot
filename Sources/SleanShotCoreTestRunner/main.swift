@@ -89,6 +89,15 @@ func testPackageDoesNotExposeNonBundledAppExecutable() {
     )
 }
 
+func testOverlayPreviewLayoutUsesScreenProportionPlusPadding() {
+    let layout = OverlayPreviewLayout(screenWidth: 3840, screenHeight: 2160)
+
+    expect(abs(layout.previewWidth - 460.8) < 0.001, "Preview width should be 12% of screen width")
+    expect(abs(layout.previewHeight - 259.2) < 0.001, "Preview height should be 12% of screen height")
+    expect(abs(layout.windowWidth - 500.8) < 0.001, "Window width should include horizontal padding")
+    expect(abs(layout.windowHeight - 299.2) < 0.001, "Window height should include vertical padding")
+}
+
 struct MockPermissionManager: PermissionManaging {
     var hasScreenCaptureAccess: Bool = true
     func requestScreenCaptureAccess() async -> Bool { return true }
@@ -325,6 +334,7 @@ func runTests() async {
     testCaptureCommandsAreUnavailableUntilEnginesExist()
     testXcodeAppProjectDeclaresBundleIdentifier()
     testPackageDoesNotExposeNonBundledAppExecutable()
+    testOverlayPreviewLayoutUsesScreenProportionPlusPadding()
     await testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
     await testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
     await testCoordinatorPinsRecordingWithoutCopyingImageData()

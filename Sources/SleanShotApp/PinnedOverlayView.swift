@@ -4,6 +4,7 @@ import SleanShotCore
 struct PinnedOverlayView: View {
     let item: CaptureItem
     let actions: OverlayActions
+    let previewSize: CGSize
     
     var nsImage: NSImage? {
         guard let data = item.imageData else { return nil }
@@ -16,7 +17,7 @@ struct PinnedOverlayView: View {
                 Image(nsImage: img)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(width: previewSize.width, height: previewSize.height)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
@@ -26,7 +27,7 @@ struct PinnedOverlayView: View {
             } else {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.black.opacity(0.8))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(width: previewSize.width, height: previewSize.height)
             }
 
             HStack(spacing: 8) {

@@ -9,19 +9,16 @@ public final class AppOverlayManager: OverlayManaging {
     public init() {}
     
     public func pin(_ item: CaptureItem, actions: OverlayActions) {
-        let hostingController = NSHostingController(rootView: PinnedOverlayView(item: item, actions: actions))
-        
         let screen = NSScreen.main
         let screenWidth = screen?.frame.width ?? 1920
         let screenHeight = screen?.frame.height ?? 1080
-        
-        // Target image size is about 12% of screen (a good "about 10%" visually)
-        let imgWidth = screenWidth * 0.12
-        let imgHeight = screenHeight * 0.12
-        
-        // Window size includes 40 points of padding for shadows and the close button
-        let winWidth = imgWidth + 40
-        let winHeight = imgHeight + 40
+        let layout = OverlayPreviewLayout(screenWidth: screenWidth, screenHeight: screenHeight)
+        let previewSize = CGSize(width: layout.previewWidth, height: layout.previewHeight)
+        let hostingController = NSHostingController(
+            rootView: PinnedOverlayView(item: item, actions: actions, previewSize: previewSize)
+        )
+        let winWidth = layout.windowWidth
+        let winHeight = layout.windowHeight
         
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: winWidth, height: winHeight),

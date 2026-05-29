@@ -200,7 +200,7 @@ Recordings must be streamed/written to disk. Pinned recording overlays should sh
 3. [x] Implement full-screen screenshot.
 4. [x] Add pinned overlay window for screenshots.
 5. [ ] Add copy/save/drop actions for screenshot overlays.
-6. [ ] Add selected-area screenshot.
+6. [x] Add selected-area screenshot.
 7. [ ] Implement reliable overlay exclusion from future captures.
 8. [ ] Add full-screen recording.
 9. [ ] Add selected-area recording.

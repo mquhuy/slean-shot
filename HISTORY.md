@@ -17,3 +17,9 @@
 
 **Next Up:**
 - Step 5: Add copy/save/drop actions for the screenshot overlays.
+
+## 2026-05-29: Selected-Area Screenshot
+
+- Added immediate drag-to-capture selected-area screenshots.
+- Reused the existing screenshot receive/pin/copy/save/drop flow.
+- Added core geometry tests for normalized, tiny, and clamped selections.

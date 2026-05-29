@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Foundation
+import OSLog
 import SleanShotCore
 
 @MainActor
@@ -20,6 +21,8 @@ final class NSAlertPresenter: AlertPresenting {
     }
 }
 
+private let logger = Logger(subsystem: "com.huy.SleanShot", category: "AppServices")
+
 @MainActor
 final class AppServices: ObservableObject {
     private let alertPresenter: AlertPresenting
@@ -35,7 +38,7 @@ final class AppServices: ObservableObject {
         } else {
             let settings = SettingsStore()
             let clipboard = AppClipboardService(alertPresenter: alertPresenter)
-            let overlays = AppOverlayManager() // We will create this in the next task
+            let overlays = AppOverlayManager()
             let fileExport = AppFileExportService(alertPresenter: alertPresenter)
             let permissions = AppPermissionManager()
             let capture = AppCaptureEngine()
@@ -54,16 +57,22 @@ final class AppServices: ObservableObject {
     }
 
     func perform(_ command: SleanShotCommand) {
+        logger.info("perform command=\(command)")
         Task {
             do {
                 try await coordinator.handle(command)
+                logger.info("command completed=\(command)")
             } catch CaptureError.permissionDenied {
+                logger.info("command permissionDenied=\(command)")
                 alertPresenter.show(message: "Screen Recording permission is required. Please grant it in System Settings.\n\nIf you just granted it, you MUST restart SleanShot for it to take effect.")
             } catch CaptureError.permissionNeedsRestart {
+                logger.info("command permissionNeedsRestart=\(command)")
                 alertPresenter.show(message: "Screen Recording permission was just granted. Please restart SleanShot to enable screen capture.")
             } catch CaptureError.captureFailed(let reason) {
+                logger.info("command captureFailed=\(command) reason=\(reason)")
                 alertPresenter.show(message: reason)
             } catch {
+                logger.info("command unknownError=\(command) error=\(error)")
                 alertPresenter.show(message: "An unknown error occurred.")
             }
         }

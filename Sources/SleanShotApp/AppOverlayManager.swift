@@ -5,6 +5,7 @@ import SleanShotCore
 @MainActor
 public final class AppOverlayManager: OverlayManaging {
     private var windows: [UUID: NSWindow] = [:]
+    private var orderedIDs: [UUID] = []
     
     public init() {}
     
@@ -19,6 +20,7 @@ public final class AppOverlayManager: OverlayManaging {
         )
         let winWidth = layout.windowWidth
         let winHeight = layout.windowHeight
+        let staggeredOffset: CGFloat = CGFloat(orderedIDs.count * 40)
         
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: winWidth, height: winHeight),
@@ -30,24 +32,38 @@ public final class AppOverlayManager: OverlayManaging {
         window.contentViewController = hostingController
         window.backgroundColor = .clear
         window.isOpaque = false
-        window.hasShadow = false // Shadow is drawn by SwiftUI
+        window.hasShadow = false
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.isMovableByWindowBackground = true
         
-        // Position at bottom right, just above the dock area
         if let screen = screen {
-            let x = screen.visibleFrame.maxX - winWidth - 20
-            let y = screen.visibleFrame.minY + 20
+            let x = screen.visibleFrame.maxX - winWidth - 20 - staggeredOffset
+            let y = screen.visibleFrame.minY + 20 + staggeredOffset
             window.setFrameOrigin(NSPoint(x: x, y: y))
         }
         
         window.orderFront(nil)
         windows[item.id] = window
+        orderedIDs.append(item.id)
     }
 
     public func remove(_ id: UUID) {
-        windows[id]?.close()
+        windows[id]?.orderOut(nil)
         windows.removeValue(forKey: id)
+        orderedIDs.removeAll { $0 == id }
+        relayout()
+    }
+
+    private func relayout() {
+        guard let screen = NSScreen.main else { return }
+        for (index, id) in orderedIDs.enumerated() {
+            guard let window = windows[id] else { continue }
+            let frame = window.frame
+            let offset: CGFloat = CGFloat(index * 40)
+            let x = screen.visibleFrame.maxX - frame.width - 20 - offset
+            let y = screen.visibleFrame.minY + 20 + offset
+            window.setFrameOrigin(NSPoint(x: x, y: y))
+        }
     }
 }

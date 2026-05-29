@@ -1,20 +1,26 @@
 import AppKit
+import OSLog
 import SwiftUI
 import SleanShotCore
+
+private let selectionLogger = Logger(subsystem: "com.huy.SleanShot", category: "AreaSelection")
 
 @MainActor
 final class AppAreaSelectionService: AreaSelectionService {
     private var activeWindows: [SelectionOverlayWindow] = []
-    private var continuation: CheckedContinuation<CaptureArea?, Never>?
+    private var continuation: UnsafeContinuation<CaptureArea?, Never>?
     private var didFinish = false
     private var selectionGate = SelectionGate()
 
     func selectArea() async -> CaptureArea? {
+        selectionLogger.info("selectArea begin requested")
         guard selectionGate.begin() else {
+            selectionLogger.info("selectArea already active; bringing existing window count=\(self.activeWindows.count)")
             bringToFront()
             return nil
         }
-        return await withCheckedContinuation { continuation in
+        return await withUnsafeContinuation { continuation in
+            selectionLogger.info("selectArea continuation stored")
             self.continuation = continuation
             self.didFinish = false
             self.presentSelectionWindow()
@@ -22,6 +28,8 @@ final class AppAreaSelectionService: AreaSelectionService {
     }
 
     private func presentSelectionWindow() {
+        selectionLogger.info("presentSelectionWindow reached")
+
         let screens = NSScreen.screens
         let mouseLocation = NSEvent.mouseLocation
         let targetScreen = screens.first(where: { NSMouseInRect(mouseLocation, $0.frame, false) }) ?? NSScreen.main ?? screens.first
@@ -43,34 +51,40 @@ final class AppAreaSelectionService: AreaSelectionService {
             defer: false
         )
 
-        window.level = .screenSaver
         window.backgroundColor = .clear
         window.isOpaque = false
         window.hasShadow = false
+        window.level = .screenSaver
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.onCancel = { [weak self] in
             self?.finish(nil)
         }
-        window.contentViewController = NSHostingController(
-            rootView: SelectionOverlayView(display: display) { [weak self] area in
-                self?.finish(area)
-            }
-        )
+
+        let hostingView = NSHostingView(rootView: SelectionOverlayView(display: display) { [weak self] area in
+            self?.finish(area)
+        })
+        hostingView.frame = NSRect(origin: .zero, size: screen.frame.size)
+        hostingView.autoresizingMask = [.width, .height]
+        window.contentView = hostingView
 
         activeWindows = [window]
         NSApp.activate(ignoringOtherApps: true)
+        window.orderFrontRegardless()
         window.makeKeyAndOrderFront(nil)
     }
 
     private func finish(_ area: CaptureArea?) {
         guard !didFinish else { return }
         didFinish = true
-        activeWindows.forEach { $0.close() }
-        activeWindows.removeAll()
-        let continuation = continuation
+        let c = continuation
         self.continuation = nil
         selectionGate.end()
-        continuation?.resume(returning: area)
+        let windowsToClose = activeWindows
+        activeWindows.removeAll()
+        c?.resume(returning: area)
+        DispatchQueue.main.async {
+            windowsToClose.forEach { $0.orderOut(nil) }
+        }
     }
 
     private func bringToFront() {

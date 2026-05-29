@@ -43,19 +43,6 @@ struct PinnedOverlayView: View {
             .padding(8)
             .offset(x: -4, y: -4)
             
-            Button(action: actions.drop) {
-                Image(systemName: "xmark.circle.fill")
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundColor(.white)
-                    .background(Color.black.opacity(0.5))
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Close")
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-            .padding(8)
-            .offset(x: 4, y: -4)
         }
         .padding(20) // Room for shadow
     }

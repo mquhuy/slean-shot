@@ -1,8 +1,17 @@
-public enum SleanShotCommand: CaseIterable, Equatable, Sendable {
+public enum SleanShotCommand: CaseIterable, Equatable, Sendable, CustomStringConvertible {
     case screenshotArea
     case screenshotFullScreen
     case recordArea
     case recordFullScreen
+
+    public var description: String {
+        switch self {
+        case .screenshotArea: "screenshotArea"
+        case .screenshotFullScreen: "screenshotFullScreen"
+        case .recordArea: "recordArea"
+        case .recordFullScreen: "recordFullScreen"
+        }
+    }
 
     public static let menuCommands: [SleanShotCommand] = [
         .screenshotArea,

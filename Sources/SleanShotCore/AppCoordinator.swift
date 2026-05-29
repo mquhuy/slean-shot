@@ -1,4 +1,7 @@
 import Foundation
+import OSLog
+
+private let coordinatorLogger = Logger(subsystem: "com.huy.SleanShot", category: "AppCoordinator")
 
 public protocol ClipboardService: Sendable {
     func copyImageData(_ data: Data)
@@ -48,12 +51,15 @@ public actor AppCoordinator {
             await receiveScreenshot(data)
 
         case .screenshotArea:
+            coordinatorLogger.info("coordinator screenshotArea permission=\(self.permissionManager.hasScreenCaptureAccess)")
             guard permissionManager.hasScreenCaptureAccess else {
                 _ = await permissionManager.requestScreenCaptureAccess()
                 throw CaptureError.permissionDenied
             }
 
+            coordinatorLogger.info("coordinator selecting area")
             guard let area = await areaSelection.selectArea() else { return }
+            coordinatorLogger.info("coordinator selected area rect=\(area.rect.width)x\(area.rect.height)")
             let data = try await captureEngine.captureArea(area)
             await receiveScreenshot(data)
 

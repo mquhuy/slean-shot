@@ -61,9 +61,14 @@ public struct AppCaptureEngine: CaptureEngine {
         }
 
         let scale = area.display.scaleFactor
+        // Convert from AppKit screen coords (bottom-left origin) to display pixel coords (top-left origin)
+        let sourceX = (area.rect.x - area.display.frame.x) * scale
+        let displayPixelHeight = area.display.frame.height * scale
+        let selectionTop = (area.rect.y + area.rect.height - area.display.frame.y) * scale
+        let sourceY = displayPixelHeight - selectionTop
         let sourceRect = CGRect(
-            x: area.rect.x * scale,
-            y: area.rect.y * scale,
+            x: sourceX,
+            y: sourceY,
             width: area.rect.width * scale,
             height: area.rect.height * scale
         )

@@ -107,18 +107,39 @@ private struct AnnotationEditorView: View {
     let onCopy: (Data) -> Void
     let onDiscard: () -> Void
 
-    @State private var lines: [Line] = []
+    @State private var strokes: [Stroke] = []
+    @State private var texts: [TextItem] = []
+    @State private var editingTextID: UUID? = nil
+    @State private var selectedTool: AnnotationTool = .brush
+    @State private var selectedColor: Color = .red
+    @State private var selectedWidth: CGFloat = 3
+    @State private var showColorPopover = false
     @State private var contentSize: CGSize = .zero
+    @FocusState private var textFieldFocused: Bool
+
+    private let presetColors: [Color] = [
+        .red, .orange, .yellow, .green, .mint, .teal,
+        .blue, .purple, .pink, .black, .white, .gray
+    ]
 
     var body: some View {
         VStack(spacing: 0) {
+            toolbar
+            Divider()
             GeometryReader { geo in
-                ZStack {
+                ZStack(alignment: .topLeading) {
                     Color.black.opacity(0.05)
                     Image(nsImage: image)
                         .resizable()
                         .scaledToFit()
-                    AnnotationCanvasView(lines: $lines)
+                    AnnotationCanvasView(
+                        strokes: $strokes,
+                        selectedTool: selectedTool,
+                        selectedColor: selectedColor,
+                        selectedWidth: selectedWidth,
+                        onPlaceText: placeText(at:)
+                    )
+                    textOverlays
                 }
                 .onAppear { contentSize = geo.size }
                 .onChange(of: geo.size) { _, newSize in
@@ -128,14 +149,12 @@ private struct AnnotationEditorView: View {
 
             HStack(spacing: 16) {
                 Button("Save") {
-                    if let data = flatten() {
-                        onSave(data)
-                    }
+                    commitText()
+                    if let data = flatten() { onSave(data) }
                 }
                 Button("Copy") {
-                    if let data = flatten() {
-                        onCopy(data)
-                    }
+                    commitText()
+                    if let data = flatten() { onCopy(data) }
                 }
                 Button("Discard", role: .destructive) {
                     onDiscard()
@@ -145,6 +164,161 @@ private struct AnnotationEditorView: View {
             .padding(.horizontal, 16)
         }
     }
+
+    // MARK: Toolbar
+
+    private var toolbar: some View {
+        HStack(spacing: 12) {
+            HStack(spacing: 4) {
+                ForEach(AnnotationTool.allCases, id: \.self) { tool in
+                    Button {
+                        selectedTool = tool
+                    } label: {
+                        Image(systemName: tool.icon)
+                            .frame(width: 26, height: 26)
+                            .background(selectedTool == tool ? Color.accentColor.opacity(0.25) : Color.clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+                    .buttonStyle(.plain)
+                    .help(tool.label)
+                }
+            }
+
+            Divider().frame(height: 22)
+
+            Button {
+                showColorPopover.toggle()
+            } label: {
+                Circle()
+                    .fill(selectedColor)
+                    .frame(width: 22, height: 22)
+                    .overlay(Circle().stroke(Color.gray.opacity(0.5), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .help("Color")
+            .popover(isPresented: $showColorPopover, arrowEdge: .bottom) {
+                colorPalette
+            }
+
+            Divider().frame(height: 22)
+
+            HStack(spacing: 6) {
+                Image(systemName: selectedTool == .text ? "textformat.size" : "lineweight")
+                    .foregroundColor(.secondary)
+                Slider(value: $selectedWidth, in: 1...20, step: 1).frame(width: 90)
+                Text("\(Int(selectedWidth))").font(.caption).foregroundColor(.secondary).frame(width: 20)
+            }
+
+            Spacer()
+
+            Button {
+                if !strokes.filter({ $0.points.count >= 2 }).isEmpty {
+                    // remove last real stroke (keep trailing empty slot if present)
+                    if let idx = strokes.lastIndex(where: { $0.points.count >= 2 }) {
+                        strokes.remove(at: idx)
+                    }
+                } else if !texts.isEmpty {
+                    texts.removeLast()
+                }
+            } label: {
+                Image(systemName: "arrow.uturn.backward")
+            }
+            .help("Undo")
+
+            Button {
+                strokes.removeAll()
+                texts.removeAll()
+                editingTextID = nil
+            } label: {
+                Image(systemName: "trash")
+            }
+            .help("Clear all")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+    }
+
+    private var colorPalette: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Colors").font(.caption).foregroundColor(.secondary)
+            LazyVGrid(columns: Array(repeating: GridItem(.fixed(26), spacing: 8), count: 6), spacing: 8) {
+                ForEach(presetColors.indices, id: \.self) { i in
+                    let c = presetColors[i]
+                    Circle()
+                        .fill(c)
+                        .frame(width: 26, height: 26)
+                        .overlay(Circle().stroke(selectedColor == c ? Color.accentColor : Color.gray.opacity(0.4),
+                                                 lineWidth: selectedColor == c ? 2.5 : 1))
+                        .onTapGesture {
+                            selectedColor = c
+                            showColorPopover = false
+                        }
+                }
+            }
+            Divider()
+            ColorPicker("Custom", selection: $selectedColor, supportsOpacity: false)
+        }
+        .padding(12)
+        .frame(width: 230)
+    }
+
+    // MARK: Text overlays
+
+    @ViewBuilder
+    private var textOverlays: some View {
+        ForEach(texts) { t in
+            if t.id == editingTextID {
+                TextField("Text", text: bindingForText(t.id))
+                    .font(.system(size: t.fontSize, weight: .semibold))
+                    .foregroundColor(t.color)
+                    .textFieldStyle(.plain)
+                    .frame(minWidth: 80, alignment: .leading)
+                    .fixedSize()
+                    .focused($textFieldFocused)
+                    .onSubmit { commitText() }
+                    .offset(x: t.position.x, y: t.position.y)
+            } else if !t.text.isEmpty {
+                Text(t.text)
+                    .font(.system(size: t.fontSize, weight: .semibold))
+                    .foregroundColor(t.color)
+                    .fixedSize()
+                    .offset(x: t.position.x, y: t.position.y)
+                    .allowsHitTesting(false)
+            }
+        }
+    }
+
+    private func bindingForText(_ id: UUID) -> Binding<String> {
+        Binding(
+            get: { texts.first(where: { $0.id == id })?.text ?? "" },
+            set: { newValue in
+                if let idx = texts.firstIndex(where: { $0.id == id }) {
+                    texts[idx].text = newValue
+                }
+            }
+        )
+    }
+
+    private func placeText(at location: CGPoint) {
+        commitText()
+        let item = TextItem(text: "", position: location, color: selectedColor, fontSize: selectedWidth * 5)
+        texts.append(item)
+        editingTextID = item.id
+        DispatchQueue.main.async { textFieldFocused = true }
+    }
+
+    private func commitText() {
+        defer {
+            editingTextID = nil
+            textFieldFocused = false
+        }
+        guard let id = editingTextID, let idx = texts.firstIndex(where: { $0.id == id }) else { return }
+        if texts[idx].text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            texts.remove(at: idx)
+        }
+    }
+
+    // MARK: Flatten
 
     private func flatten() -> Data? {
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
@@ -189,27 +363,60 @@ private struct AnnotationEditorView: View {
         image.draw(at: .zero, from: .zero, operation: .copy, fraction: 1.0)
 
         let cgCtx = ctx.cgContext
-        cgCtx.setLineCap(CGLineCap.round)
-        cgCtx.setLineJoin(CGLineJoin.round)
+        cgCtx.setLineCap(.round)
+        cgCtx.setLineJoin(.round)
 
-        for line in lines where line.points.count > 1 {
-            let color = line.color.cgColor ?? CGColor.black
-            cgCtx.setStrokeColor(color)
-            cgCtx.setLineWidth(line.width * max(scaleX, scaleY))
+        // map a display point -> image pixel point (flipped y for CG)
+        func mapped(_ p: CGPoint) -> CGPoint {
+            CGPoint(x: (p.x - offsetX) * scaleX, y: CGFloat(h) - (p.y - offsetY) * scaleY)
+        }
 
-            cgCtx.beginPath()
-            let first = line.points[0]
-            cgCtx.move(to: CGPoint(
-                x: (first.x - offsetX) * scaleX,
-                y: CGFloat(h) - (first.y - offsetY) * scaleY
-            ))
-            for point in line.points.dropFirst() {
-                cgCtx.addLine(to: CGPoint(
-                    x: (point.x - offsetX) * scaleX,
-                    y: CGFloat(h) - (point.y - offsetY) * scaleY
-                ))
+        for stroke in strokes where stroke.points.count >= 2 {
+            cgCtx.setStrokeColor(stroke.color.cgColor ?? CGColor.black)
+            cgCtx.setLineWidth(stroke.width * max(scaleX, scaleY))
+            let pts = stroke.points.map(mapped)
+            switch stroke.tool {
+            case .brush:
+                cgCtx.beginPath()
+                cgCtx.move(to: pts[0])
+                for p in pts.dropFirst() { cgCtx.addLine(to: p) }
+                cgCtx.strokePath()
+            case .line:
+                cgCtx.beginPath()
+                cgCtx.move(to: pts[0])
+                cgCtx.addLine(to: pts[1])
+                cgCtx.strokePath()
+            case .arrow:
+                let start = pts[0], end = pts[1]
+                cgCtx.beginPath()
+                cgCtx.move(to: start)
+                cgCtx.addLine(to: end)
+                let angle = atan2(end.y - start.y, end.x - start.x)
+                let headLen = max(stroke.width * max(scaleX, scaleY) * 4, 12)
+                let ha: CGFloat = .pi / 6
+                cgCtx.move(to: end)
+                cgCtx.addLine(to: CGPoint(x: end.x - headLen * cos(angle - ha), y: end.y - headLen * sin(angle - ha)))
+                cgCtx.move(to: end)
+                cgCtx.addLine(to: CGPoint(x: end.x - headLen * cos(angle + ha), y: end.y - headLen * sin(angle + ha)))
+                cgCtx.strokePath()
+            case .text:
+                break
             }
-            cgCtx.strokePath()
+        }
+
+        // text: draw with AppKit (non-flipped context, point = lower-left of text)
+        for t in texts where !t.text.isEmpty {
+            let fontSize = t.fontSize * max(scaleX, scaleY)
+            let attrs: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: fontSize, weight: .semibold),
+                .foregroundColor: NSColor(t.color)
+            ]
+            let str = t.text as NSString
+            let textHeight = str.size(withAttributes: attrs).height
+            let topX = (t.position.x - offsetX) * scaleX
+            let topYFromTop = (t.position.y - offsetY) * scaleY
+            let drawY = CGFloat(h) - topYFromTop - textHeight
+            str.draw(at: CGPoint(x: topX, y: drawY), withAttributes: attrs)
         }
 
         NSGraphicsContext.restoreGraphicsState()

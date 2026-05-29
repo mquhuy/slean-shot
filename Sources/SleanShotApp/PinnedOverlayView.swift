@@ -5,6 +5,7 @@ struct PinnedOverlayView: View {
     let item: CaptureItem
     let actions: OverlayActions
     let previewSize: CGSize
+    @State private var isHovering = false
     
     var nsImage: NSImage? {
         guard let data = item.imageData else { return nil }
@@ -24,6 +25,24 @@ struct PinnedOverlayView: View {
                             .stroke(Color.white.opacity(0.8), lineWidth: 2)
                     )
                     .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
+                    .onTapGesture { actions.edit() }
+                    .onHover { hovering in
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            isHovering = hovering
+                        }
+                    }
+                    .overlay(alignment: .top) {
+                        if isHovering {
+                            Text("Edit")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill(Color.black.opacity(0.7)))
+                                .offset(y: -8)
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
+                    }
             } else {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.black.opacity(0.8))

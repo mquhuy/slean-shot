@@ -20,6 +20,7 @@ public actor AppCoordinator {
     private let permissionManager: PermissionManaging
     private let captureEngine: CaptureEngine
     private let areaSelection: AreaSelectionService
+    private let annotationEditor: AnnotationEditing
 
     public init(
         settings: SettingsStore,
@@ -28,7 +29,8 @@ public actor AppCoordinator {
         fileExport: FileExportService,
         permissionManager: PermissionManaging,
         captureEngine: CaptureEngine,
-        areaSelection: AreaSelectionService = NoAreaSelectionService()
+        areaSelection: AreaSelectionService = NoAreaSelectionService(),
+        annotationEditor: AnnotationEditing
     ) {
         self.settings = settings
         self.clipboard = clipboard
@@ -37,6 +39,7 @@ public actor AppCoordinator {
         self.permissionManager = permissionManager
         self.captureEngine = captureEngine
         self.areaSelection = areaSelection
+        self.annotationEditor = annotationEditor
     }
 
     public func handle(_ command: SleanShotCommand) async throws {
@@ -80,6 +83,9 @@ public actor AppCoordinator {
             },
             drop: { [overlays, id = item.id] in
                 overlays.remove(id)
+            },
+            edit: { [annotationEditor, imageData] in
+                annotationEditor.editImage(data: imageData)
             }
         )
 
@@ -100,7 +106,8 @@ public actor AppCoordinator {
             save: {},
             drop: { [overlays, id = item.id] in
                 overlays.remove(id)
-            }
+            },
+            edit: {}
         )
 
         await overlays.pin(item, actions: actions)

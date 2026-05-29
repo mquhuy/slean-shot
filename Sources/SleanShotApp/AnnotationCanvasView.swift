@@ -1,20 +1,45 @@
-import PencilKit
 import SwiftUI
 
-struct AnnotationCanvasView: NSViewRepresentable {
-    @Binding var drawing: PKDrawing
+struct AnnotationCanvasView: View {
+    @Binding var lines: [Line]
 
-    func makeNSView(context: Context) -> PKCanvasView {
-        let canvas = PKCanvasView()
-        canvas.drawing = drawing
-        canvas.backgroundColor = .clear
-        canvas.isOpaque = false
-        canvas.drawingPolicy = .anyInput
-        canvas.allowsFingerDrawing = false
-        return canvas
+    var body: some View {
+        Canvas { context, size in
+            for line in lines where line.points.count > 1 {
+                var path = Path()
+                path.move(to: line.points[0])
+                for point in line.points.dropFirst() {
+                    path.addLine(to: point)
+                }
+                context.stroke(path, with: .color(line.color), lineWidth: line.width)
+            }
+        }
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    if lines.isEmpty {
+                        lines = [Line(points: [value.location])]
+                    } else if lines.last!.points.isEmpty {
+                        lines[lines.count - 1] = Line(points: [value.location])
+                    } else {
+                        lines[lines.count - 1].points.append(value.location)
+                    }
+                }
+                .onEnded { _ in
+                    lines.append(Line(points: []))
+                }
+        )
     }
+}
 
-    func updateNSView(_ nsView: PKCanvasView, context: Context) {
-        nsView.drawing = drawing
+struct Line: Equatable, Sendable {
+    var points: [CGPoint]
+    var color: Color
+    var width: CGFloat
+
+    init(points: [CGPoint] = [], color: Color = .black, width: CGFloat = 3) {
+        self.points = points
+        self.color = color
+        self.width = width
     }
 }

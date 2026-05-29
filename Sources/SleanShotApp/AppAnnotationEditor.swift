@@ -1,6 +1,5 @@
 import AppKit
 import OSLog
-import PencilKit
 import SwiftUI
 import SleanShotCore
 
@@ -72,7 +71,7 @@ final class AppAnnotationEditor: AnnotationEditing {
                         }
                         do {
                             try annotatedData.write(to: url)
-                            continuation.resume(returning: .saved)
+                            continuation.resume(returning: EditorAction.saved)
                             window.orderOut(nil)
                         } catch {
                             let alert = NSAlert()
@@ -82,11 +81,11 @@ final class AppAnnotationEditor: AnnotationEditing {
                     },
                     onCopy: { [weak self, weak window] annotatedData in
                         self?.clipboardService.copyImageData(annotatedData)
-                        continuation.resume(returning: .copied)
+                        continuation.resume(returning: EditorAction.copied)
                         window?.orderOut(nil)
                     },
                     onDiscard: { [weak window] in
-                        continuation.resume(returning: .discarded)
+                        continuation.resume(returning: EditorAction.discarded)
                         window?.orderOut(nil)
                     }
                 )
@@ -108,16 +107,23 @@ private struct AnnotationEditorView: View {
     let onCopy: (Data) -> Void
     let onDiscard: () -> Void
 
-    @State private var drawing = PKDrawing()
+    @State private var lines: [Line] = []
+    @State private var contentSize: CGSize = .zero
 
     var body: some View {
         VStack(spacing: 0) {
-            ZStack {
-                Color.black.opacity(0.05)
-                Image(nsImage: image)
-                    .resizable()
-                    .scaledToFit()
-                AnnotationCanvasView(drawing: $drawing)
+            GeometryReader { geo in
+                ZStack {
+                    Color.black.opacity(0.05)
+                    Image(nsImage: image)
+                        .resizable()
+                        .scaledToFit()
+                    AnnotationCanvasView(lines: $lines)
+                }
+                .onAppear { contentSize = geo.size }
+                .onChange(of: geo.size) { _, newSize in
+                    contentSize = newSize
+                }
             }
 
             HStack(spacing: 16) {
@@ -146,6 +152,19 @@ private struct AnnotationEditorView: View {
         }
         let w = cgImage.width
         let h = cgImage.height
+
+        guard contentSize.width > 0, contentSize.height > 0 else { return nil }
+
+        let imageSize = image.size
+        let displayScale = min(contentSize.width / imageSize.width, contentSize.height / imageSize.height, 1.0)
+        let displayW = imageSize.width * displayScale
+        let displayH = imageSize.height * displayScale
+        let offsetX = (contentSize.width - displayW) / 2
+        let offsetY = (contentSize.height - displayH) / 2
+
+        let scaleX = CGFloat(w) / displayW
+        let scaleY = CGFloat(h) / displayH
+
         let bitmapRep = NSBitmapImageRep(
             bitmapDataPlanes: nil,
             pixelsWide: w,
@@ -161,15 +180,39 @@ private struct AnnotationEditorView: View {
         bitmapRep.size = image.size
 
         NSGraphicsContext.saveGraphicsState()
-        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmapRep)
-        image.draw(at: .zero, from: .zero, operation: .copy, fraction: 1.0)
-        let uiImage = drawing.image(from: CGRect(x: 0, y: 0, width: w, height: h), scale: 1.0)
-        if let cgDrawing = uiImage.cgImage {
-            let drawingImage = NSImage(cgImage: cgDrawing, size: image.size)
-            drawingImage.draw(at: .zero, from: .zero, operation: .sourceOver, fraction: 1.0)
+        guard let ctx = NSGraphicsContext(bitmapImageRep: bitmapRep) else {
+            NSGraphicsContext.restoreGraphicsState()
+            return nil
         }
-        NSGraphicsContext.restoreGraphicsState()
+        NSGraphicsContext.current = ctx
 
+        image.draw(at: .zero, from: .zero, operation: .copy, fraction: 1.0)
+
+        let cgCtx = ctx.cgContext
+        cgCtx.setLineCap(CGLineCap.round)
+        cgCtx.setLineJoin(CGLineJoin.round)
+
+        for line in lines where line.points.count > 1 {
+            let color = line.color.cgColor ?? CGColor.black
+            cgCtx.setStrokeColor(color)
+            cgCtx.setLineWidth(line.width * max(scaleX, scaleY))
+
+            cgCtx.beginPath()
+            let first = line.points[0]
+            cgCtx.move(to: CGPoint(
+                x: (first.x - offsetX) * scaleX,
+                y: CGFloat(h) - (first.y - offsetY) * scaleY
+            ))
+            for point in line.points.dropFirst() {
+                cgCtx.addLine(to: CGPoint(
+                    x: (point.x - offsetX) * scaleX,
+                    y: CGFloat(h) - (point.y - offsetY) * scaleY
+                ))
+            }
+            cgCtx.strokePath()
+        }
+
+        NSGraphicsContext.restoreGraphicsState()
         return bitmapRep.representation(using: .png, properties: [:])
     }
 }

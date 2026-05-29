@@ -43,7 +43,11 @@ final class AppServices: ObservableObject {
             let permissions = AppPermissionManager()
             let capture = AppCaptureEngine()
             let areaSelection = AppAreaSelectionService()
-            
+            let annotationEditor = AppAnnotationEditor(
+                alertPresenter: alertPresenter,
+                clipboardService: clipboard
+            )
+
             self.coordinator = AppCoordinator(
                 settings: settings,
                 clipboard: clipboard,
@@ -51,7 +55,8 @@ final class AppServices: ObservableObject {
                 fileExport: fileExport,
                 permissionManager: permissions,
                 captureEngine: capture,
-                areaSelection: areaSelection
+                areaSelection: areaSelection,
+                annotationEditor: annotationEditor
             )
         }
     }

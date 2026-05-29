@@ -19,6 +19,9 @@
 		1A000001000000000000000B /* SelectionOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001A /* SelectionOverlayWindow.swift */; };
 		1A000001000000000000000C /* SelectionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001B /* SelectionOverlayView.swift */; };
 		1A0000010000000000000004 /* SleanShotCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000010000000000000041 /* SleanShotCore */; };
+		1A000001000000000000000F /* PencilKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001E /* PencilKit.framework */; };
+		1A000001000000000000000D /* AppAnnotationEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001C /* AppAnnotationEditor.swift */; };
+		1A000001000000000000000E /* AnnotationCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001D /* AnnotationCanvasView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +37,9 @@
 		1A0000010000000000000019 /* AppAreaSelectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppAreaSelectionService.swift; sourceTree = "<group>"; };
 		1A000001000000000000001A /* SelectionOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SelectionOverlayWindow.swift; sourceTree = "<group>"; };
 		1A000001000000000000001B /* SelectionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SelectionOverlayView.swift; sourceTree = "<group>"; };
+		1A000001000000000000001C /* AppAnnotationEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppAnnotationEditor.swift; sourceTree = "<group>"; };
+		1A000001000000000000001D /* AnnotationCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AnnotationCanvasView.swift; sourceTree = "<group>"; };
+		1A000001000000000000001E /* PencilKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PencilKit.framework; path = System/Library/Frameworks/PencilKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +48,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A0000010000000000000004 /* SleanShotCore in Frameworks */,
+				1A000001000000000000000F /* PencilKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,6 +77,8 @@
 				1A0000010000000000000019 /* AppAreaSelectionService.swift */,
 				1A000001000000000000001A /* SelectionOverlayWindow.swift */,
 				1A000001000000000000001B /* SelectionOverlayView.swift */,
+				1A000001000000000000001C /* AppAnnotationEditor.swift */,
+				1A000001000000000000001D /* AnnotationCanvasView.swift */,
 			);
 			name = SleanShotApp;
 			sourceTree = "<group>";
@@ -156,6 +165,8 @@
 				1A000001000000000000000A /* AppAreaSelectionService.swift in Sources */,
 				1A000001000000000000000B /* SelectionOverlayWindow.swift in Sources */,
 				1A000001000000000000000C /* SelectionOverlayView.swift in Sources */,
+				1A000001000000000000000D /* AppAnnotationEditor.swift in Sources */,
+				1A000001000000000000000E /* AnnotationCanvasView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

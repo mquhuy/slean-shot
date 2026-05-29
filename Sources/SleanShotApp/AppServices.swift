@@ -39,6 +39,7 @@ final class AppServices: ObservableObject {
             let fileExport = AppFileExportService(alertPresenter: alertPresenter)
             let permissions = AppPermissionManager()
             let capture = AppCaptureEngine()
+            let areaSelection = NoAreaSelectionService()
             
             self.coordinator = AppCoordinator(
                 settings: settings,
@@ -46,7 +47,8 @@ final class AppServices: ObservableObject {
                 overlays: overlays,
                 fileExport: fileExport,
                 permissionManager: permissions,
-                captureEngine: capture
+                captureEngine: capture,
+                areaSelection: areaSelection
             )
         }
     }

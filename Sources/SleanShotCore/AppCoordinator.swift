@@ -16,6 +16,7 @@ public actor AppCoordinator {
     private let fileExport: FileExportService
     private let permissionManager: PermissionManaging
     private let captureEngine: CaptureEngine
+    private let areaSelection: AreaSelectionService
 
     public init(
         settings: SettingsStore,
@@ -23,7 +24,8 @@ public actor AppCoordinator {
         overlays: OverlayManaging,
         fileExport: FileExportService,
         permissionManager: PermissionManaging,
-        captureEngine: CaptureEngine
+        captureEngine: CaptureEngine,
+        areaSelection: AreaSelectionService = NoAreaSelectionService()
     ) {
         self.settings = settings
         self.clipboard = clipboard
@@ -31,6 +33,7 @@ public actor AppCoordinator {
         self.fileExport = fileExport
         self.permissionManager = permissionManager
         self.captureEngine = captureEngine
+        self.areaSelection = areaSelection
     }
 
     public func handle(_ command: SleanShotCommand) async throws {
@@ -43,8 +46,18 @@ public actor AppCoordinator {
             
             let data = try await captureEngine.captureFullScreen()
             await receiveScreenshot(data)
-            
-        case .screenshotArea, .recordArea, .recordFullScreen:
+
+        case .screenshotArea:
+            guard permissionManager.hasScreenCaptureAccess else {
+                _ = await permissionManager.requestScreenCaptureAccess()
+                throw CaptureError.permissionDenied
+            }
+
+            guard let area = await areaSelection.selectArea() else { return }
+            let data = try await captureEngine.captureArea(area)
+            await receiveScreenshot(data)
+
+        case .recordArea, .recordFullScreen:
             throw CaptureError.captureFailed(command.unavailableMessage)
         }
     }

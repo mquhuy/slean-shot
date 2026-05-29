@@ -27,7 +27,7 @@ public enum SleanShotCommand: CaseIterable, Equatable, Sendable {
     public var unavailableMessage: String {
         switch self {
         case .screenshotArea:
-            "Area screenshots are not implemented yet."
+            "Area screenshots are available."
         case .screenshotFullScreen:
             "Full-screen screenshots are not implemented yet."
         case .recordArea:

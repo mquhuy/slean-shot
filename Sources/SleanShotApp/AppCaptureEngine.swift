@@ -43,4 +43,8 @@ public struct AppCaptureEngine: CaptureEngine {
             throw CaptureError.captureFailed(error.localizedDescription)
         }
     }
+
+    public func captureArea(_ area: CaptureArea) async throws -> Data {
+        throw CaptureError.captureFailed("Area capture not implemented")
+    }
 }

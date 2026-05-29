@@ -53,7 +53,7 @@ func testCaptureCommandsAreUnavailableUntilEnginesExist() {
 
     expect(
         unavailableMessages == [
-            "Area screenshots are not implemented yet.",
+            "Area screenshots are available.",
             "Full-screen screenshots are not implemented yet.",
             "Area recording is not implemented yet.",
             "Full-screen recording is not implemented yet."
@@ -141,8 +141,37 @@ struct MockPermissionManager: PermissionManaging {
 }
 
 struct MockCaptureEngine: CaptureEngine {
+    var areaData = Data("mock_area_image".utf8)
+    final class State: @unchecked Sendable {
+        let lock = NSLock()
+        var capturedAreas: [CaptureArea] = []
+    }
+
+    let state = State()
+
     func captureFullScreen() async throws -> Data {
         return Data("mock_image".utf8)
+    }
+
+    func captureArea(_ area: CaptureArea) async throws -> Data {
+        state.lock.withLock {
+            state.capturedAreas.append(area)
+        }
+        return areaData
+    }
+
+    var capturedAreas: [CaptureArea] {
+        state.lock.withLock {
+            state.capturedAreas
+        }
+    }
+}
+
+struct MockAreaSelectionService: AreaSelectionService {
+    let selection: CaptureArea?
+
+    func selectArea() async -> CaptureArea? {
+        selection
     }
 }
 
@@ -363,6 +392,55 @@ func testCoordinatorFullScreenCapture() async {
 }
 
 @MainActor
+func testCoordinatorAreaScreenshotCancelDoesNotCaptureOrPin() async {
+    let clipboard = MockClipboardService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
+    let coordinator = AppCoordinator(
+        settings: SettingsStore(autoCopyScreenshotToClipboard: true),
+        clipboard: clipboard,
+        overlays: overlays,
+        fileExport: MockFileExportService(),
+        permissionManager: permissions,
+        captureEngine: capture,
+        areaSelection: MockAreaSelectionService(selection: nil)
+    )
+
+    try? await coordinator.handle(.screenshotArea)
+
+    expect(capture.capturedAreas.isEmpty, "Cancelled area selection should not capture")
+    expect(overlays.pinnedItems.isEmpty, "Cancelled area selection should not pin overlays")
+    expect(clipboard.copiedData == nil, "Cancelled area selection should not copy image data")
+}
+
+@MainActor
+func testCoordinatorAreaScreenshotCapturesSelectionAndPinsScreenshot() async {
+    let clipboard = MockClipboardService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
+    let display = CaptureDisplay(id: 7, frame: CaptureRect(x: 0, y: 0, width: 800, height: 600), scaleFactor: 2)
+    let area = CaptureArea(display: display, rect: CaptureRect(x: 20, y: 30, width: 120, height: 90))
+    let coordinator = AppCoordinator(
+        settings: SettingsStore(autoCopyScreenshotToClipboard: true),
+        clipboard: clipboard,
+        overlays: overlays,
+        fileExport: MockFileExportService(),
+        permissionManager: permissions,
+        captureEngine: capture,
+        areaSelection: MockAreaSelectionService(selection: area)
+    )
+
+    try? await coordinator.handle(.screenshotArea)
+
+    expect(capture.capturedAreas == [area], "Area screenshot should capture selected area")
+    expect(overlays.pinnedItems.count == 1, "Area screenshot should pin one screenshot")
+    expect(overlays.pinnedItems.first?.imageData == Data("mock_area_image".utf8), "Pinned screenshot should use captured area data")
+    expect(clipboard.copiedData == Data("mock_area_image".utf8), "Area screenshot should reuse auto-copy flow")
+}
+
+@MainActor
 func runTests() async {
     testScreenshotCaptureItemsUseInMemoryImages()
     testRecordingCaptureItemsUseFileURLsAndThumbnails()
@@ -381,6 +459,8 @@ func runTests() async {
     await testRecordingOverlayActionsDropWithoutCopyingOrSaving()
     await testOverlayActionsCopySaveDrop()
     await testCoordinatorFullScreenCapture()
+    await testCoordinatorAreaScreenshotCancelDoesNotCaptureOrPin()
+    await testCoordinatorAreaScreenshotCapturesSelectionAndPinsScreenshot()
     
     print("SleanShotCoreTestRunner passed")
 }

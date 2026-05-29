@@ -259,6 +259,38 @@ func testCoordinatorPinsRecordingWithoutCopyingImageData() async {
 }
 
 @MainActor
+func testRecordingOverlayActionsDropWithoutCopyingOrSaving() async {
+    let clipboard = MockClipboardService()
+    let exporter = MockFileExportService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
+    let coordinator = AppCoordinator(
+        settings: SettingsStore(autoCopyScreenshotToClipboard: true),
+        clipboard: clipboard,
+        overlays: overlays,
+        fileExport: exporter,
+        permissionManager: permissions,
+        captureEngine: capture
+    )
+    let recordingURL = URL(fileURLWithPath: "/tmp/recording.mov")
+
+    let item = await coordinator.receiveRecording(fileURL: recordingURL, thumbnailData: nil)
+
+    guard let actions = overlays.actionsByID[item.id] else {
+        fatalError("Recording overlay actions should be created")
+    }
+
+    actions.copy()
+    actions.save()
+    actions.drop()
+
+    expect(clipboard.copiedData == nil, "Recording copy should not write image data to clipboard")
+    expect(exporter.savedData == nil, "Recording save should not export image data")
+    expect(overlays.removedIDs == [item.id], "Recording drop should remove the overlay")
+}
+
+@MainActor
 func testCoordinatorFullScreenCapture() async {
     let settings = SettingsStore()
     let clipboard = MockClipboardService()
@@ -296,6 +328,7 @@ func runTests() async {
     await testCoordinatorPinsAndCopiesScreenshotWhenAutoCopyEnabled()
     await testCoordinatorDoesNotCopyScreenshotWhenAutoCopyDisabled()
     await testCoordinatorPinsRecordingWithoutCopyingImageData()
+    await testRecordingOverlayActionsDropWithoutCopyingOrSaving()
     await testOverlayActionsCopySaveDrop()
     await testCoordinatorFullScreenCapture()
     

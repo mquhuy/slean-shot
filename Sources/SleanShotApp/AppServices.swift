@@ -36,6 +36,7 @@ final class AppServices: ObservableObject {
             let settings = SettingsStore()
             let clipboard = AppClipboardService()
             let overlays = AppOverlayManager() // We will create this in the next task
+            let fileExport = AppFileExportService()
             let permissions = AppPermissionManager()
             let capture = AppCaptureEngine()
             
@@ -43,6 +44,7 @@ final class AppServices: ObservableObject {
                 settings: settings,
                 clipboard: clipboard,
                 overlays: overlays,
+                fileExport: fileExport,
                 permissionManager: permissions,
                 captureEngine: capture
             )
@@ -80,4 +82,8 @@ final class AppClipboardService: Sendable, ClipboardService {
     }
 }
 
+final class AppFileExportService: Sendable, FileExportService {
+    @MainActor
+    func saveImageData(_ data: Data) {}
+}
 

@@ -8,7 +8,7 @@ public final class AppOverlayManager: OverlayManaging {
     
     public init() {}
     
-    public func pin(_ item: CaptureItem) {
+    public func pin(_ item: CaptureItem, actions: OverlayActions) {
         let hostingController = NSHostingController(rootView: PinnedOverlayView(item: item, closeAction: { [weak self] in
             self?.close(item.id)
         }))
@@ -49,6 +49,10 @@ public final class AppOverlayManager: OverlayManaging {
         
         window.orderFront(nil)
         windows[item.id] = window
+    }
+
+    public func remove(_ id: UUID) {
+        close(id)
     }
     
     private func close(_ id: UUID) {

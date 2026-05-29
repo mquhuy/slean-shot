@@ -39,7 +39,7 @@ final class AppServices: ObservableObject {
             let fileExport = AppFileExportService(alertPresenter: alertPresenter)
             let permissions = AppPermissionManager()
             let capture = AppCaptureEngine()
-            let areaSelection = NoAreaSelectionService()
+            let areaSelection = AppAreaSelectionService()
             
             self.coordinator = AppCoordinator(
                 settings: settings,

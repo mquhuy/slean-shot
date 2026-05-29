@@ -15,6 +15,9 @@
 		1A0000010000000000000007 /* AppOverlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000016 /* AppOverlayManager.swift */; };
 		1A0000010000000000000008 /* PinnedOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000017 /* PinnedOverlayView.swift */; };
 		1A0000010000000000000009 /* AppFileExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000018 /* AppFileExportService.swift */; };
+		1A000001000000000000000A /* AppAreaSelectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000019 /* AppAreaSelectionService.swift */; };
+		1A000001000000000000000B /* SelectionOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001A /* SelectionOverlayWindow.swift */; };
+		1A000001000000000000000C /* SelectionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001B /* SelectionOverlayView.swift */; };
 		1A0000010000000000000004 /* SleanShotCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000010000000000000041 /* SleanShotCore */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +31,9 @@
 		1A0000010000000000000016 /* AppOverlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppOverlayManager.swift; sourceTree = "<group>"; };
 		1A0000010000000000000017 /* PinnedOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/PinnedOverlayView.swift; sourceTree = "<group>"; };
 		1A0000010000000000000018 /* AppFileExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppFileExportService.swift; sourceTree = "<group>"; };
+		1A0000010000000000000019 /* AppAreaSelectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppAreaSelectionService.swift; sourceTree = "<group>"; };
+		1A000001000000000000001A /* SelectionOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SelectionOverlayWindow.swift; sourceTree = "<group>"; };
+		1A000001000000000000001B /* SelectionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SelectionOverlayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +67,9 @@
 				1A0000010000000000000016 /* AppOverlayManager.swift */,
 				1A0000010000000000000017 /* PinnedOverlayView.swift */,
 				1A0000010000000000000018 /* AppFileExportService.swift */,
+				1A0000010000000000000019 /* AppAreaSelectionService.swift */,
+				1A000001000000000000001A /* SelectionOverlayWindow.swift */,
+				1A000001000000000000001B /* SelectionOverlayView.swift */,
 			);
 			name = SleanShotApp;
 			sourceTree = "<group>";
@@ -144,6 +153,9 @@
 				1A0000010000000000000007 /* AppOverlayManager.swift in Sources */,
 				1A0000010000000000000008 /* PinnedOverlayView.swift in Sources */,
 				1A0000010000000000000009 /* AppFileExportService.swift in Sources */,
+				1A000001000000000000000A /* AppAreaSelectionService.swift in Sources */,
+				1A000001000000000000000B /* SelectionOverlayWindow.swift in Sources */,
+				1A000001000000000000000C /* SelectionOverlayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

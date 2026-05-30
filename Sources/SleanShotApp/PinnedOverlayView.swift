@@ -7,11 +7,13 @@ struct PinnedOverlayView: View {
     let previewSize: CGSize
     @State private var isHovering = false
     
+    private var isScreenshot: Bool { item.kind == .screenshot }
+
     var nsImage: NSImage? {
-        guard let data = item.imageData else { return nil }
+        guard let data = item.imageData ?? item.thumbnailData else { return nil }
         return NSImage(data: data)
     }
-    
+
     var body: some View {
         ZStack {
             if let img = nsImage {
@@ -24,15 +26,23 @@ struct PinnedOverlayView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.white.opacity(0.8), lineWidth: 2)
                     )
+                    .overlay {
+                        if !isScreenshot {
+                            Image(systemName: "play.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(.white.opacity(0.9))
+                                .shadow(radius: 3)
+                        }
+                    }
                     .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
-                    .onTapGesture { actions.edit() }
+                    .onTapGesture { if isScreenshot { actions.edit() } }
                     .onHover { hovering in
                         withAnimation(.easeInOut(duration: 0.15)) {
                             isHovering = hovering
                         }
                     }
                     .overlay(alignment: .top) {
-                        if isHovering {
+                        if isHovering && isScreenshot {
                             Text("Edit")
                                 .font(.caption.weight(.semibold))
                                 .foregroundColor(.white)
@@ -47,6 +57,13 @@ struct PinnedOverlayView: View {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.black.opacity(0.8))
                     .frame(width: previewSize.width, height: previewSize.height)
+                    .overlay {
+                        if !isScreenshot {
+                            Image(systemName: "film")
+                                .font(.system(size: 24))
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                    }
             }
 
             HStack(spacing: 8) {

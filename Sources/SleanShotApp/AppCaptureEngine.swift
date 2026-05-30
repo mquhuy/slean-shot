@@ -4,9 +4,27 @@ import Foundation
 import ScreenCaptureKit
 import SleanShotCore
 
+extension SCShareableContent {
+    /// All on-screen windows owned by SleanShot itself (pinned overlays, the
+    /// selection overlay, the annotation editor, the recording control panel).
+    /// These must be excluded from every capture/recording so SleanShot's own UI
+    /// never appears in the user's screenshots or videos.
+    func sleanShotWindows() -> [SCWindow] {
+        let bundleID = Bundle.main.bundleIdentifier
+        let pid = ProcessInfo.processInfo.processIdentifier
+        return windows.filter { window in
+            if let owningBundle = window.owningApplication?.bundleIdentifier,
+               let bundleID, owningBundle == bundleID {
+                return true
+            }
+            return window.owningApplication?.processID == pid
+        }
+    }
+}
+
 public struct AppCaptureEngine: CaptureEngine {
     public init() {}
-    
+
     public func captureFullScreen() async throws -> Data {
         let content: SCShareableContent
         do {
@@ -28,7 +46,7 @@ public struct AppCaptureEngine: CaptureEngine {
         config.height = display.height
         config.showsCursor = false
         
-        let filter = SCContentFilter(display: display, excludingWindows: [])
+        let filter = SCContentFilter(display: display, excludingWindows: content.sleanShotWindows())
         
         do {
             let cgImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
@@ -79,7 +97,7 @@ public struct AppCaptureEngine: CaptureEngine {
         config.sourceRect = sourceRect
         config.showsCursor = false
 
-        let filter = SCContentFilter(display: display, excludingWindows: [])
+        let filter = SCContentFilter(display: display, excludingWindows: content.sleanShotWindows())
 
         do {
             let cgImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)

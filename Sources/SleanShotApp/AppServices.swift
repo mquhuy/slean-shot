@@ -27,6 +27,9 @@ private let logger = Logger(subsystem: "com.huy.SleanShot", category: "AppServic
 final class AppServices: ObservableObject {
     private let alertPresenter: AlertPresenting
     private let coordinator: AppCoordinator
+    private let recordingControl = RecordingControlPanel()
+
+    @Published private(set) var isRecording = false
 
     init(
         alertPresenter: AlertPresenting = NSAlertPresenter(),
@@ -36,7 +39,7 @@ final class AppServices: ObservableObject {
         if let coordinator = coordinator {
             self.coordinator = coordinator
         } else {
-            let settings = SettingsStore()
+            let settings = UserDefaultsSettingsStore()
             let clipboard = AppClipboardService(alertPresenter: alertPresenter)
             let overlays = AppOverlayManager()
             let fileExport = AppFileExportService(alertPresenter: alertPresenter)
@@ -47,6 +50,7 @@ final class AppServices: ObservableObject {
                 alertPresenter: alertPresenter,
                 clipboardService: clipboard
             )
+            let recording = AppRecordingEngine()
 
             self.coordinator = AppCoordinator(
                 settings: settings,
@@ -56,7 +60,8 @@ final class AppServices: ObservableObject {
                 permissionManager: permissions,
                 captureEngine: capture,
                 areaSelection: areaSelection,
-                annotationEditor: annotationEditor
+                annotationEditor: annotationEditor,
+                recordingEngine: recording
             )
         }
     }
@@ -67,6 +72,15 @@ final class AppServices: ObservableObject {
             do {
                 try await coordinator.handle(command)
                 logger.info("command completed=\(command)")
+                if command.isRecording {
+                    let recording = await coordinator.isRecording
+                    isRecording = recording
+                    if recording {
+                        recordingControl.show { [weak self] in
+                            self?.stopRecording()
+                        }
+                    }
+                }
             } catch CaptureError.permissionDenied {
                 logger.info("command permissionDenied=\(command)")
                 alertPresenter.show(message: "Screen Recording permission is required. Please grant it in System Settings.\n\nIf you just granted it, you MUST restart SleanShot for it to take effect.")
@@ -83,8 +97,37 @@ final class AppServices: ObservableObject {
         }
     }
 
+    func stopRecording() {
+        Task {
+            do {
+                try await coordinator.stopRecording()
+            } catch {
+                logger.info("stopRecording error=\(error)")
+                alertPresenter.show(message: "Recording failed to save. Please try again.")
+            }
+            isRecording = false
+            recordingControl.hide()
+        }
+    }
+
     func quit() {
         NSApp.terminate(nil)
+    }
+}
+
+/// Live, `UserDefaults`-backed view of settings so the coordinator reads the
+/// current toggle value at capture time (the Settings screen writes the same key
+/// via `@AppStorage`). Absent key defaults to enabled.
+struct UserDefaultsSettingsStore: SettingsProviding {
+    private let defaults: UserDefaults
+    private let key = "autoCopyScreenshotToClipboard"
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
+
+    var autoCopyScreenshotToClipboard: Bool {
+        defaults.object(forKey: key) == nil ? true : defaults.bool(forKey: key)
     }
 }
 
@@ -100,6 +143,16 @@ final class AppClipboardService: Sendable, ClipboardService {
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
             if !pasteboard.setData(data, forType: .png) {
+                alertPresenter.show(message: "Copy failed. Please try again.")
+            }
+        }
+    }
+
+    func copyFileURL(_ url: URL) {
+        Task { @MainActor [alertPresenter] in
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            if !pasteboard.writeObjects([url as NSURL]) {
                 alertPresenter.show(message: "Copy failed. Please try again.")
             }
         }

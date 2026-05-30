@@ -42,16 +42,10 @@ public enum SleanShotCommand: CaseIterable, Equatable, Sendable, CustomStringCon
         }
     }
 
-    public var unavailableMessage: String {
+    public var isRecording: Bool {
         switch self {
-        case .screenshotArea:
-            "Area screenshots are available."
-        case .screenshotFullScreen:
-            "Full-screen screenshots are not implemented yet."
-        case .recordArea:
-            "Area recording is not implemented yet."
-        case .recordFullScreen:
-            "Full-screen recording is not implemented yet."
+        case .recordArea, .recordFullScreen: true
+        case .screenshotArea, .screenshotFullScreen: false
         }
     }
 }

@@ -22,6 +22,8 @@
 		1A000001000000000000000F /* PencilKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001E /* PencilKit.framework */; };
 		1A000001000000000000000D /* AppAnnotationEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001C /* AppAnnotationEditor.swift */; };
 		1A000001000000000000000E /* AnnotationCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001D /* AnnotationCanvasView.swift */; };
+		1A0000010000000000000022 /* AppRecordingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000021 /* AppRecordingEngine.swift */; };
+		1A0000010000000000000024 /* RecordingControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000023 /* RecordingControlPanel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +41,8 @@
 		1A000001000000000000001B /* SelectionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SelectionOverlayView.swift; sourceTree = "<group>"; };
 		1A000001000000000000001C /* AppAnnotationEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppAnnotationEditor.swift; sourceTree = "<group>"; };
 		1A000001000000000000001D /* AnnotationCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AnnotationCanvasView.swift; sourceTree = "<group>"; };
+		1A0000010000000000000021 /* AppRecordingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppRecordingEngine.swift; sourceTree = "<group>"; };
+		1A0000010000000000000023 /* RecordingControlPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/RecordingControlPanel.swift; sourceTree = "<group>"; };
 		1A000001000000000000001E /* PencilKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PencilKit.framework; path = System/Library/Frameworks/PencilKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -79,6 +83,8 @@
 				1A000001000000000000001B /* SelectionOverlayView.swift */,
 				1A000001000000000000001C /* AppAnnotationEditor.swift */,
 				1A000001000000000000001D /* AnnotationCanvasView.swift */,
+				1A0000010000000000000021 /* AppRecordingEngine.swift */,
+				1A0000010000000000000023 /* RecordingControlPanel.swift */,
 			);
 			name = SleanShotApp;
 			sourceTree = "<group>";
@@ -167,6 +173,8 @@
 				1A000001000000000000000C /* SelectionOverlayView.swift in Sources */,
 				1A000001000000000000000D /* AppAnnotationEditor.swift in Sources */,
 				1A000001000000000000000E /* AnnotationCanvasView.swift in Sources */,
+				1A0000010000000000000022 /* AppRecordingEngine.swift in Sources */,
+				1A0000010000000000000024 /* RecordingControlPanel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

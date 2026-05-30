@@ -23,3 +23,33 @@
 - Added immediate drag-to-capture selected-area screenshots.
 - Reused the existing screenshot receive/pin/copy/save/drop flow.
 - Added core geometry tests for normalized, tiny, and clamped selections.
+
+## 2026-05-30: Recording, Overlay Exclusion, Settings Wiring (Steps 7–11)
+
+Completed the remaining MVP roadmap items on `feature/overlay-actions`.
+
+- **Fixed a broken build on `main`:** the test runner constructed `AppCoordinator`
+  without the (newly required) `annotationEditor`. Gave the dependency a
+  `NoAnnotationEditor` default so production and tests construct it the same way.
+- **Step 7 — Overlay exclusion:** captures and recordings now exclude every
+  SleanShot-owned window via `SCShareableContent.sleanShotWindows()` (matched by
+  bundle id / process id), so pinned overlays, the selection overlay, the editor,
+  and the recording control panel never appear in captured media.
+- **Steps 8 & 9 — Recording:** added `RecordingEngine`/`RecordingHandle` to the
+  core and `AppRecordingEngine` (ScreenCaptureKit `SCStream` → `AVAssetWriter`,
+  H.264 `.mov` streamed to a temp dir, never holding raw buffers; thumbnail via
+  `AVAssetImageGenerator` on stop). Full-screen and selected-area both supported.
+  A floating `RecordingControlPanel` plus a menu item provide Stop; the coordinator
+  ignores a second start while already recording.
+- **Recording overlays:** copy puts the file URL on the pasteboard, save copies the
+  `.mov` via `NSSavePanel`, drop removes the overlay and deletes the temp file.
+  `PinnedOverlayView` shows the thumbnail with a play badge and no Edit affordance.
+- **Step 11 — Settings wiring:** the coordinator now reads the auto-copy toggle
+  *live* through a `SettingsProviding` abstraction backed by `UserDefaultsSettingsStore`,
+  instead of a throwaway snapshot that ignored the user's choice.
+
+**Verification:** `SleanShotCore` builds and the full `SleanShotCoreTestRunner`
+suite passes (incl. new recording-flow tests). The app target (`SleanShotApp`)
+could not be compiled in this environment — only Command Line Tools are installed,
+not Xcode — so the ScreenCaptureKit/AVFoundation app code must be built and run in
+Xcode to confirm.

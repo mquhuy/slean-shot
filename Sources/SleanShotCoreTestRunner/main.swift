@@ -48,18 +48,11 @@ func testMenuCommandsExposeExpectedTitles() {
     )
 }
 
-func testCaptureCommandsAreUnavailableUntilEnginesExist() {
-    let unavailableMessages = SleanShotCommand.menuCommands.map(\.unavailableMessage)
-
-    expect(
-        unavailableMessages == [
-            "Area screenshots are available.",
-            "Full-screen screenshots are not implemented yet.",
-            "Area recording is not implemented yet.",
-            "Full-screen recording is not implemented yet."
-        ],
-        "Menu commands should be honest placeholders until capture engines exist"
-    )
+func testRecordingCommandsAreFlaggedAsRecording() {
+    expect(!SleanShotCommand.screenshotArea.isRecording, "Area screenshot is not a recording command")
+    expect(!SleanShotCommand.screenshotFullScreen.isRecording, "Full-screen screenshot is not a recording command")
+    expect(SleanShotCommand.recordArea.isRecording, "Area recording is a recording command")
+    expect(SleanShotCommand.recordFullScreen.isRecording, "Full-screen recording is a recording command")
 }
 
 func testXcodeAppProjectDeclaresBundleIdentifier() {
@@ -181,6 +174,29 @@ struct MockAreaSelectionService: AreaSelectionService {
 
     func selectArea() async -> CaptureArea? {
         selection
+    }
+}
+
+struct MockRecordingHandle: RecordingHandle {
+    let result: RecordingResult
+    func stop() async throws -> RecordingResult { result }
+}
+
+struct MockRecordingEngine: RecordingEngine {
+    let result: RecordingResult
+    final class State: @unchecked Sendable {
+        let lock = NSLock()
+        var startedTargets: [RecordingTarget] = []
+    }
+    let state = State()
+
+    func startRecording(_ target: RecordingTarget) async throws -> RecordingHandle {
+        state.lock.withLock { state.startedTargets.append(target) }
+        return MockRecordingHandle(result: result)
+    }
+
+    var startedTargets: [RecordingTarget] {
+        state.lock.withLock { state.startedTargets }
     }
 }
 
@@ -450,12 +466,74 @@ func testCoordinatorAreaScreenshotCapturesSelectionAndPinsScreenshot() async {
 }
 
 @MainActor
+func testCoordinatorRecordingFlowStartsStopsAndPins() async {
+    let clipboard = MockClipboardService()
+    let overlays = MockOverlayManager()
+    let permissions = MockPermissionManager()
+    let capture = MockCaptureEngine()
+    let recordingURL = URL(fileURLWithPath: "/tmp/slean-recording.mov")
+    let thumbnail = Data([0xAA, 0xBB])
+    let recording = MockRecordingEngine(
+        result: RecordingResult(fileURL: recordingURL, thumbnailData: thumbnail)
+    )
+    let coordinator = AppCoordinator(
+        settings: SettingsStore(autoCopyScreenshotToClipboard: true),
+        clipboard: clipboard,
+        overlays: overlays,
+        fileExport: MockFileExportService(),
+        permissionManager: permissions,
+        captureEngine: capture,
+        recordingEngine: recording
+    )
+
+    try? await coordinator.handle(.recordFullScreen)
+
+    let recordingFlag = await coordinator.isRecording
+    expect(recordingFlag, "Coordinator should report recording after start")
+    expect(overlays.pinnedItems.isEmpty, "Recording should not pin until stopped")
+    expect(recording.startedTargets == [.fullScreen], "Full-screen recording should start a full-screen target")
+
+    try? await coordinator.stopRecording()
+
+    let stoppedFlag = await coordinator.isRecording
+    expect(!stoppedFlag, "Coordinator should not be recording after stop")
+    expect(overlays.pinnedItems.count == 1, "Stopping should pin one recording")
+    expect(overlays.pinnedItems.first?.kind == .recording, "Pinned item should be a recording")
+    expect(overlays.pinnedItems.first?.fileURL == recordingURL, "Pinned recording should keep file URL")
+    expect(clipboard.copiedData == nil, "Recording should not auto-copy image data")
+}
+
+@MainActor
+func testCoordinatorIgnoresSecondRecordingStart() async {
+    let recording = MockRecordingEngine(
+        result: RecordingResult(fileURL: URL(fileURLWithPath: "/tmp/r.mov"), thumbnailData: nil)
+    )
+    let coordinator = AppCoordinator(
+        settings: SettingsStore(),
+        clipboard: MockClipboardService(),
+        overlays: MockOverlayManager(),
+        fileExport: MockFileExportService(),
+        permissionManager: MockPermissionManager(),
+        captureEngine: MockCaptureEngine(),
+        recordingEngine: recording
+    )
+
+    try? await coordinator.startRecording(.fullScreen)
+    try? await coordinator.startRecording(.area(
+        CaptureArea(display: CaptureDisplay(id: 1, frame: CaptureRect(x: 0, y: 0, width: 100, height: 100), scaleFactor: 1),
+                    rect: CaptureRect(x: 0, y: 0, width: 50, height: 50))
+    ))
+
+    expect(recording.startedTargets == [.fullScreen], "Second start should be ignored while recording")
+}
+
+@MainActor
 func runTests() async {
     testScreenshotCaptureItemsUseInMemoryImages()
     testRecordingCaptureItemsUseFileURLsAndThumbnails()
     testSettingsDefaultToAutoCopyScreenshotsEnabled()
     testMenuCommandsExposeExpectedTitles()
-    testCaptureCommandsAreUnavailableUntilEnginesExist()
+    testRecordingCommandsAreFlaggedAsRecording()
     testXcodeAppProjectDeclaresBundleIdentifier()
     testPackageDoesNotExposeNonBundledAppExecutable()
     testOverlayPreviewLayoutUsesScreenProportionPlusPadding()
@@ -471,7 +549,9 @@ func runTests() async {
     await testCoordinatorFullScreenCapture()
     await testCoordinatorAreaScreenshotCancelDoesNotCaptureOrPin()
     await testCoordinatorAreaScreenshotCapturesSelectionAndPinsScreenshot()
-    
+    await testCoordinatorRecordingFlowStartsStopsAndPins()
+    await testCoordinatorIgnoresSecondRecordingStart()
+
     print("SleanShotCoreTestRunner passed")
 }
 

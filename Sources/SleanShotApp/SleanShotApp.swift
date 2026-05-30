@@ -15,6 +15,14 @@ struct SleanShotApp: App {
                     services.perform(command)
                 }
                 .keyboardShortcut(KeyEquivalent(command.keyEquivalent), modifiers: [.command, .control])
+                .disabled(services.isRecording && command.isRecording)
+            }
+
+            if services.isRecording {
+                Divider()
+                Button("Stop Recording") {
+                    services.stopRecording()
+                }
             }
 
             Divider()

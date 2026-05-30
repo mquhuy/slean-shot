@@ -28,6 +28,7 @@ final class AppServices: ObservableObject {
     private let alertPresenter: AlertPresenting
     private let coordinator: AppCoordinator
     private let recordingControl = RecordingControlPanel()
+    private let recordingBorder = RecordingBorderWindow()
 
     @Published private(set) var isRecording = false
 
@@ -79,6 +80,7 @@ final class AppServices: ObservableObject {
                         recordingControl.show { [weak self] in
                             self?.stopRecording()
                         }
+                        await showRecordingBorderIfEnabled()
                     }
                 }
             } catch CaptureError.permissionDenied {
@@ -107,7 +109,26 @@ final class AppServices: ObservableObject {
             }
             isRecording = false
             recordingControl.hide()
+            recordingBorder.hide()
         }
+    }
+
+    private func showRecordingBorderIfEnabled() async {
+        guard UserDefaults.standard.object(forKey: "showRecordingBorder") == nil
+                ? true
+                : UserDefaults.standard.bool(forKey: "showRecordingBorder") else {
+            return
+        }
+
+        let rect: NSRect
+        if let area = await coordinator.activeRecordingArea {
+            rect = NSRect(x: area.rect.x, y: area.rect.y, width: area.rect.width, height: area.rect.height)
+        } else if let screen = NSScreen.main {
+            rect = screen.frame
+        } else {
+            return
+        }
+        recordingBorder.show(rect: rect)
     }
 
     func quit() {
@@ -119,7 +140,7 @@ final class AppServices: ObservableObject {
 /// current toggle value at capture time (the Settings screen writes the same key
 /// via `@AppStorage`). Absent key defaults to enabled.
 struct UserDefaultsSettingsStore: SettingsProviding {
-    private let defaults: UserDefaults
+    nonisolated(unsafe) private let defaults: UserDefaults
     private let key = "autoCopyScreenshotToClipboard"
 
     init(defaults: UserDefaults = .standard) {

@@ -30,6 +30,7 @@ public actor AppCoordinator {
     private let recordingEngine: RecordingEngine
 
     private var activeRecording: RecordingHandle?
+    private var activeRecordingTarget: RecordingTarget?
 
     public init(
         settings: SettingsProviding,
@@ -55,6 +56,16 @@ public actor AppCoordinator {
 
     public var isRecording: Bool {
         activeRecording != nil
+    }
+
+    /// The selected area for an in-progress area recording, or `nil` for a
+    /// full-screen recording / when not recording. Lets the app frame the
+    /// recording region with a border.
+    public var activeRecordingArea: CaptureArea? {
+        switch activeRecordingTarget {
+        case .area(let area): return area
+        case .fullScreen, .none: return nil
+        }
     }
 
     public func handle(_ command: SleanShotCommand) async throws {
@@ -100,12 +111,14 @@ public actor AppCoordinator {
         }
         let handle = try await recordingEngine.startRecording(target)
         activeRecording = handle
+        activeRecordingTarget = target
         coordinatorLogger.info("recording started")
     }
 
     public func stopRecording() async throws {
         guard let handle = activeRecording else { return }
         activeRecording = nil
+        activeRecordingTarget = nil
         let result = try await handle.stop()
         coordinatorLogger.info("recording stopped url=\(result.fileURL.lastPathComponent)")
         await receiveRecording(fileURL: result.fileURL, thumbnailData: result.thumbnailData)

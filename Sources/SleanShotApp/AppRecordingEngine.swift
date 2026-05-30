@@ -175,11 +175,11 @@ final class RecordingSession: NSObject, RecordingHandle, SCStreamOutput, SCStrea
     func stop() async throws -> RecordingResult {
         try? await stream.stopCapture()
 
-        lock.lock()
-        let didStart = sessionStarted
-        finished = true
-        videoInput.markAsFinished()
-        lock.unlock()
+        let didStart = lock.withLock {
+            finished = true
+            videoInput.markAsFinished()
+            return sessionStarted
+        }
 
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             writer.finishWriting {

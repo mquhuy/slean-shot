@@ -9,6 +9,14 @@ struct PinnedOverlayView: View {
     
     private var isScreenshot: Bool { item.kind == .screenshot }
 
+    private func handleTap() {
+        if isScreenshot {
+            actions.edit()
+        } else if let url = item.fileURL {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
     var nsImage: NSImage? {
         guard let data = item.imageData ?? item.thumbnailData else { return nil }
         return NSImage(data: data)
@@ -35,15 +43,15 @@ struct PinnedOverlayView: View {
                         }
                     }
                     .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
-                    .onTapGesture { if isScreenshot { actions.edit() } }
+                    .onTapGesture { handleTap() }
                     .onHover { hovering in
                         withAnimation(.easeInOut(duration: 0.15)) {
                             isHovering = hovering
                         }
                     }
                     .overlay(alignment: .top) {
-                        if isHovering && isScreenshot {
-                            Text("Edit")
+                        if isHovering {
+                            Text(isScreenshot ? "Edit" : "Play")
                                 .font(.caption.weight(.semibold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 12)

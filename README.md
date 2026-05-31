@@ -1,6 +1,13 @@
-# SleanShot
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
+    <img src="assets/logo.png" alt="SleanShot" width="420">
+  </picture>
+</p>
 
+<p align="center">
 A native macOS app that makes screenshots and screen recordings easier by capturing media, keeping captured items pinned in a screen corner, and letting users annotate, save, copy, or discard them instantly.
+</p>
 
 ## Overview
 

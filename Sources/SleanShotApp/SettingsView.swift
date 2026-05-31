@@ -10,6 +10,20 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section {
+                HStack {
+                    Spacer()
+                    Image("Logo")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(height: 40)
+                        .accessibilityLabel("SleanShot")
+                    Spacer()
+                }
+                .listRowBackground(Color.clear)
+            }
+
             Section("General") {
                 Toggle("Automatically copy screenshots to clipboard", isOn: $autoCopyScreenshotToClipboard)
                 Toggle("Show a border around the recording area", isOn: $showRecordingBorder)

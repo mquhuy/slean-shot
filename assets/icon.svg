@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="80" y="80" width="864" height="864" rx="200" fill="url(#bg)"/>
+  <rect x="80" y="80" width="864" height="864" rx="200" fill="url(#sheen)"/>
+
+  <g fill="none" stroke="#ffffff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" opacity="0.96">
+    <path d="M250 360 L250 250 L360 250"/>
+    <path d="M664 250 L774 250 L774 360"/>
+    <path d="M774 664 L774 774 L664 774"/>
+    <path d="M360 774 L250 774 L250 664"/>
+  </g>
+
+  <path d="M556 318 L398 548 L498 548 L468 706 L626 476 L526 476 Z"
+        fill="#ffffff"/>
+</svg>

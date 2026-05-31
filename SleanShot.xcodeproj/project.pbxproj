@@ -26,6 +26,7 @@
 		1A0000010000000000000024 /* Sources/SleanShotApp/RecordingControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000023 /* Sources/SleanShotApp/RecordingControlPanel.swift */; };
 		1A0000010000000000000026 /* Sources/SleanShotApp/Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000025 /* Sources/SleanShotApp/Hotkeys.swift */; };
 		1A0000010000000000000028 /* Sources/SleanShotApp/WelcomeTipWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000027 /* Sources/SleanShotApp/WelcomeTipWindow.swift */; };
+		1A00000100000000000000F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000100000000000000F0 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		1A0000010000000000000023 /* Sources/SleanShotApp/RecordingControlPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/RecordingControlPanel.swift; sourceTree = "<group>"; };
 		1A0000010000000000000025 /* Sources/SleanShotApp/Hotkeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/Hotkeys.swift; sourceTree = "<group>"; };
 		1A0000010000000000000027 /* Sources/SleanShotApp/WelcomeTipWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/WelcomeTipWindow.swift; sourceTree = "<group>"; };
+		1A00000100000000000000F0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Sources/SleanShotApp/Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +94,7 @@
 				1A0000010000000000000023 /* Sources/SleanShotApp/RecordingControlPanel.swift */,
 				1A0000010000000000000025 /* Sources/SleanShotApp/Hotkeys.swift */,
 				1A0000010000000000000027 /* Sources/SleanShotApp/WelcomeTipWindow.swift */,
+				1A00000100000000000000F0 /* Assets.xcassets */,
 			);
 			name = SleanShotApp;
 			sourceTree = "<group>";
@@ -121,6 +124,7 @@
 			buildPhases = (
 				1A0000010000000000000070 /* Sources */,
 				1A0000010000000000000020 /* Frameworks */,
+				1A00000100000000000000F2 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -135,6 +139,17 @@
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1A00000100000000000000F2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A00000100000000000000F1 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXProject section */
 		1A0000010000000000000080 /* Project object */ = {

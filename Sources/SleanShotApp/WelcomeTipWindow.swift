@@ -227,9 +227,10 @@ private struct WelcomeTipView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
-                Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 30))
-                    .foregroundStyle(.tint)
+                Image("IconMark")
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: 44, height: 44)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Quick tip: keyboard shortcuts")
                         .font(.title3.weight(.semibold))

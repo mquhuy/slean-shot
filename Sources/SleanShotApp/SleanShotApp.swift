@@ -52,7 +52,8 @@ private struct MenuBarLabel: View {
     @Environment(\.openSettings) private var openSettings
 
     var body: some View {
-        Image(systemName: "camera.viewfinder")
+        Image("MenuBarIcon")
+            .renderingMode(.template)
             .onReceive(NotificationCenter.default.publisher(for: .sleanShotOpenSettings)) { _ in
                 NSApp.activate(ignoringOtherApps: true)
                 openSettings()

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="380" viewBox="0 0 1180 380">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- icon mark -->
+  <g transform="translate(10,10) scale(0.3515625)">
+    <rect x="80" y="80" width="864" height="864" rx="200" fill="url(#bg)"/>
+    <g fill="none" stroke="#ffffff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" opacity="0.96">
+      <path d="M250 360 L250 250 L360 250"/>
+      <path d="M664 250 L774 250 L774 360"/>
+      <path d="M774 664 L774 774 L664 774"/>
+      <path d="M360 774 L250 774 L250 664"/>
+    </g>
+    <path d="M556 318 L398 548 L498 548 L468 706 L626 476 L526 476 Z" fill="#ffffff"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="400" y="250" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="200" font-weight="700" letter-spacing="-4">
+    <tspan fill="#1E293B">Slean</tspan><tspan fill="#2563EB">Shot</tspan>
+  </text>
+</svg>

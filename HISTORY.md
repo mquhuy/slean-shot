@@ -24,6 +24,27 @@
 - Reused the existing screenshot receive/pin/copy/save/drop flow.
 - Added core geometry tests for normalized, tiny, and clamped selections.
 
+## 2026-05-30: Recording Border + Configurable Global Hotkeys
+
+Post-MVP enhancements on `feature/overlay-actions`.
+
+- **Recording border setting:** optional red frame around the recording region
+  while recording (`showRecordingBorder`, default on). Click-through window with
+  `sharingType = .none` so it is never captured. Also set `sharingType = .none`
+  on the Stop control panel — both are created *after* the SCStream filter is
+  built, so `excludingWindows` alone would not have covered them.
+- **Configurable global hotkeys:** native Carbon `RegisterEventHotKey` for
+  system-wide shortcuts (fire from any app, no extra permission). Per-command
+  bindings persisted in `UserDefaults`, edited via a click-to-record field in
+  Settings, with Reset-to-default. Removed the old in-app menu `.keyboardShortcut`
+  to avoid double-firing.
+- **macOS default screenshot shortcuts:** chose NOT to modify system prefs
+  (sandbox-unsafe, fragile). Settings explains how to disable ⌘⇧3/4/5 manually
+  and deep-links to System Settings → Keyboard.
+
+Core (`Hotkey`/`HotkeyModifiers` + per-command defaults) builds and tests pass.
+App layer (`Hotkeys.swift`, recording border) must be built in Xcode.
+
 ## 2026-05-30: Recording, Overlay Exclusion, Settings Wiring (Steps 7–11)
 
 Completed the remaining MVP roadmap items on `feature/overlay-actions`.

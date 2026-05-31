@@ -29,6 +29,8 @@ final class AppServices: ObservableObject {
     private let coordinator: AppCoordinator
     private let recordingControl = RecordingControlPanel()
     private let recordingBorder = RecordingBorderWindow()
+    private let hotkeyManager = GlobalHotkeyManager()
+    private var hotkeyObserver: NSObjectProtocol?
 
     @Published private(set) var isRecording = false
 
@@ -64,6 +66,28 @@ final class AppServices: ObservableObject {
                 annotationEditor: annotationEditor,
                 recordingEngine: recording
             )
+        }
+
+        registerHotkeys()
+        // First-run / opted-in quick tip: how to set shortcuts and free up the
+        // macOS screenshot combos. Deferred so the menu-bar UI is up first.
+        DispatchQueue.main.async {
+            WelcomeTipPresenter.shared.showIfEnabled()
+        }
+        hotkeyObserver = NotificationCenter.default.addObserver(
+            forName: .sleanShotHotkeysChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.registerHotkeys()
+            }
+        }
+    }
+
+    private func registerHotkeys() {
+        hotkeyManager.reload { [weak self] command in
+            self?.perform(command)
         }
     }
 

@@ -24,6 +24,8 @@
 		1A000001000000000000000F /* PencilKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001E /* PencilKit.framework */; };
 		1A0000010000000000000022 /* Sources/SleanShotApp/AppRecordingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000021 /* Sources/SleanShotApp/AppRecordingEngine.swift */; };
 		1A0000010000000000000024 /* Sources/SleanShotApp/RecordingControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000023 /* Sources/SleanShotApp/RecordingControlPanel.swift */; };
+		1A0000010000000000000026 /* Sources/SleanShotApp/Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000025 /* Sources/SleanShotApp/Hotkeys.swift */; };
+		1A0000010000000000000028 /* Sources/SleanShotApp/WelcomeTipWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000027 /* Sources/SleanShotApp/WelcomeTipWindow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +46,8 @@
 		1A000001000000000000001E /* PencilKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PencilKit.framework; path = System/Library/Frameworks/PencilKit.framework; sourceTree = SDKROOT; };
 		1A0000010000000000000021 /* Sources/SleanShotApp/AppRecordingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppRecordingEngine.swift; sourceTree = "<group>"; };
 		1A0000010000000000000023 /* Sources/SleanShotApp/RecordingControlPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/RecordingControlPanel.swift; sourceTree = "<group>"; };
+		1A0000010000000000000025 /* Sources/SleanShotApp/Hotkeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/Hotkeys.swift; sourceTree = "<group>"; };
+		1A0000010000000000000027 /* Sources/SleanShotApp/WelcomeTipWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/WelcomeTipWindow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +90,8 @@
 				1A000001000000000000001D /* Sources/SleanShotApp/AnnotationCanvasView.swift */,
 				1A0000010000000000000021 /* Sources/SleanShotApp/AppRecordingEngine.swift */,
 				1A0000010000000000000023 /* Sources/SleanShotApp/RecordingControlPanel.swift */,
+				1A0000010000000000000025 /* Sources/SleanShotApp/Hotkeys.swift */,
+				1A0000010000000000000027 /* Sources/SleanShotApp/WelcomeTipWindow.swift */,
 			);
 			name = SleanShotApp;
 			sourceTree = "<group>";
@@ -184,6 +190,8 @@
 				1A000001000000000000000E /* Sources/SleanShotApp/AnnotationCanvasView.swift in Sources */,
 				1A0000010000000000000022 /* Sources/SleanShotApp/AppRecordingEngine.swift in Sources */,
 				1A0000010000000000000024 /* Sources/SleanShotApp/RecordingControlPanel.swift in Sources */,
+				1A0000010000000000000026 /* Sources/SleanShotApp/Hotkeys.swift in Sources */,
+				1A0000010000000000000028 /* Sources/SleanShotApp/WelcomeTipWindow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

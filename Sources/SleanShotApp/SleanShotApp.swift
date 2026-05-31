@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import SleanShotCore
 
@@ -6,7 +7,7 @@ struct SleanShotApp: App {
     @StateObject private var services = AppServices()
 
     var body: some Scene {
-        MenuBarExtra("SleanShot", systemImage: "camera.viewfinder") {
+        MenuBarExtra {
             Text("SleanShot")
             Divider()
 
@@ -14,7 +15,6 @@ struct SleanShotApp: App {
                 Button(command.title) {
                     services.perform(command)
                 }
-                .keyboardShortcut(KeyEquivalent(command.keyEquivalent), modifiers: [.command, .control])
                 .disabled(services.isRecording && command.isRecording)
             }
 
@@ -33,10 +33,29 @@ struct SleanShotApp: App {
                 services.quit()
             }
             .keyboardShortcut("q")
+        } label: {
+            // A persistent label view so the `openSettings` bridge stays alive
+            // even while the menu is closed.
+            MenuBarLabel()
         }
 
         Settings {
             SettingsView()
         }
+    }
+}
+
+/// Menu-bar icon plus a bridge that lets non-SwiftUI windows (the welcome tip)
+/// open the Settings scene: the only supported way to open Settings on macOS 14
+/// is the `openSettings` environment action, which requires a live SwiftUI view.
+private struct MenuBarLabel: View {
+    @Environment(\.openSettings) private var openSettings
+
+    var body: some View {
+        Image(systemName: "camera.viewfinder")
+            .onReceive(NotificationCenter.default.publisher(for: .sleanShotOpenSettings)) { _ in
+                NSApp.activate(ignoringOtherApps: true)
+                openSettings()
+            }
     }
 }

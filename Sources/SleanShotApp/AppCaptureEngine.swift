@@ -4,12 +4,28 @@ import Foundation
 import ScreenCaptureKit
 import SleanShotCore
 
+/// UserDefaults key controlling whether SleanShot's own windows are excluded
+/// from captures/recordings. Absent key defaults to enabled (true).
+let excludeSleanShotFromCapturesKey = "excludeSleanShotFromCaptures"
+
+extension UserDefaults {
+    var excludeSleanShotFromCaptures: Bool {
+        object(forKey: excludeSleanShotFromCapturesKey) == nil
+            ? true
+            : bool(forKey: excludeSleanShotFromCapturesKey)
+    }
+}
+
 extension SCShareableContent {
     /// All on-screen windows owned by SleanShot itself (pinned overlays, the
     /// selection overlay, the annotation editor, the recording control panel).
     /// These must be excluded from every capture/recording so SleanShot's own UI
     /// never appears in the user's screenshots or videos.
+    ///
+    /// Returns an empty list when the user disables exclusion in Settings, so
+    /// SleanShot's own UI is allowed to appear in captures.
     func sleanShotWindows() -> [SCWindow] {
+        guard UserDefaults.standard.excludeSleanShotFromCaptures else { return [] }
         let bundleID = Bundle.main.bundleIdentifier
         let pid = ProcessInfo.processInfo.processIdentifier
         return windows.filter { window in

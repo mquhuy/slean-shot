@@ -4,6 +4,7 @@ import SleanShotCore
 struct SettingsView: View {
     @AppStorage("autoCopyScreenshotToClipboard") private var autoCopyScreenshotToClipboard = true
     @AppStorage("showRecordingBorder") private var showRecordingBorder = true
+    @AppStorage(excludeSleanShotFromCapturesKey) private var excludeSleanShotFromCaptures = true
     @AppStorage(showTipAtStartupKey) private var showTipAtStartup = true
 
     @State private var hotkeys: [SleanShotCommand: Hotkey] = [:]
@@ -27,6 +28,7 @@ struct SettingsView: View {
             Section("General") {
                 Toggle("Automatically copy screenshots to clipboard", isOn: $autoCopyScreenshotToClipboard)
                 Toggle("Show a border around the recording area", isOn: $showRecordingBorder)
+                Toggle("Hide SleanShot windows from screenshots and recordings", isOn: $excludeSleanShotFromCaptures)
             }
 
             Section("Global Shortcuts") {

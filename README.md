@@ -10,7 +10,7 @@ A native macOS app that makes screenshots and screen recordings easier by captur
 </p>
 
 <p align="center">
-  <img src="assets/demo.gif" alt="SleanShot demo" width="720">
+  <video src="assets/demo.mp4" autoplay loop muted playsinline width="720"></video>
 </p>
 
 ## Overview

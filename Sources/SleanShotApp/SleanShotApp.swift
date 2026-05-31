@@ -26,8 +26,8 @@ struct SleanShotApp: App {
             }
 
             Divider()
-            SettingsLink {
-                Text("Settings")
+            Button("Settings") {
+                NotificationCenter.default.post(name: .sleanShotOpenSettings, object: nil)
             }
             Button("Quit") {
                 services.quit()
@@ -57,6 +57,26 @@ private struct MenuBarLabel: View {
             .onReceive(NotificationCenter.default.publisher(for: .sleanShotOpenSettings)) { _ in
                 NSApp.activate(ignoringOtherApps: true)
                 openSettings()
+                // Settings scene window can open behind other apps' windows; force it
+                // above everything once SwiftUI has created/shown it.
+                Task { @MainActor in
+                    raiseSettingsWindow()
+                }
             }
     }
+}
+
+/// Brings the SwiftUI Settings scene window in front of all other windows.
+/// The Settings scene gives us no direct window reference, so locate it among
+/// `NSApp.windows`. SwiftUI tags it with a "Settings" identifier on macOS 14+;
+/// fall back to the title for older shapes.
+@MainActor
+private func raiseSettingsWindow() {
+    let settingsWindow = NSApp.windows.first { window in
+        let id = window.identifier?.rawValue ?? ""
+        return id.contains("Settings") || window.title == "Settings"
+    }
+    guard let settingsWindow else { return }
+    settingsWindow.makeKeyAndOrderFront(nil)
+    settingsWindow.orderFrontRegardless()
 }

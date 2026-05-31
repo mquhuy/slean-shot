@@ -4,6 +4,7 @@ enum AnnotationTool: String, CaseIterable, Sendable {
     case brush
     case line
     case arrow
+    case circle
     case text
 
     var icon: String {
@@ -11,6 +12,7 @@ enum AnnotationTool: String, CaseIterable, Sendable {
         case .brush: return "scribble"
         case .line: return "line.diagonal"
         case .arrow: return "arrow.up.right"
+        case .circle: return "circle"
         case .text: return "textformat"
         }
     }
@@ -20,6 +22,7 @@ enum AnnotationTool: String, CaseIterable, Sendable {
         case .brush: return "Brush"
         case .line: return "Line"
         case .arrow: return "Arrow"
+        case .circle: return "Circle"
         case .text: return "Text"
         }
     }
@@ -80,7 +83,7 @@ struct AnnotationCanvasView: View {
                 switch selectedTool {
                 case .brush:
                     strokes[strokes.count - 1].points.append(pt)
-                case .line, .arrow:
+                case .line, .arrow, .circle:
                     if strokes[strokes.count - 1].points.count == 1 {
                         strokes[strokes.count - 1].points.append(pt)
                     } else {
@@ -134,6 +137,13 @@ struct AnnotationCanvasView: View {
             path.move(to: end); path.addLine(to: p1)
             path.move(to: end); path.addLine(to: p2)
             context.stroke(path, with: .color(stroke.color), style: style)
+
+        case .circle:
+            let rect = CGRect(x: min(stroke.points[0].x, stroke.points[1].x),
+                              y: min(stroke.points[0].y, stroke.points[1].y),
+                              width: abs(stroke.points[1].x - stroke.points[0].x),
+                              height: abs(stroke.points[1].y - stroke.points[0].y))
+            context.stroke(Path(ellipseIn: rect), with: .color(stroke.color), style: style)
 
         case .text:
             break

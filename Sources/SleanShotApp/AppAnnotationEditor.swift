@@ -61,13 +61,18 @@ final class AppAnnotationEditor: AnnotationEditing {
                     flattenedSize: imageSize,
                     onSave: { [weak window] annotatedData in
                         guard let window = window else { return }
-                        let panel = NSSavePanel()
-                        panel.allowedContentTypes = [.png]
-                        panel.canCreateDirectories = true
-                        panel.nameFieldStringValue = "Screenshot.png"
-                        let response = panel.runModal()
-                        guard response == .OK, let url = panel.url else {
-                            return
+                        let url: URL
+                        if let target = ScreenshotSavePreferences.autoSaveURL() {
+                            url = target
+                        } else {
+                            let panel = NSSavePanel()
+                            panel.allowedContentTypes = [.png]
+                            panel.canCreateDirectories = true
+                            ScreenshotSavePreferences.configure(panel)
+                            guard panel.runModal() == .OK, let chosen = panel.url else {
+                                return
+                            }
+                            url = chosen
                         }
                         do {
                             try annotatedData.write(to: url)

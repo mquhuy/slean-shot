@@ -16,6 +16,8 @@
 		1A0000010000000000000007 /* Sources/SleanShotApp/AppOverlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000016 /* Sources/SleanShotApp/AppOverlayManager.swift */; };
 		1A0000010000000000000008 /* Sources/SleanShotApp/PinnedOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000017 /* Sources/SleanShotApp/PinnedOverlayView.swift */; };
 		1A0000010000000000000009 /* Sources/SleanShotApp/AppFileExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000018 /* Sources/SleanShotApp/AppFileExportService.swift */; };
+		1A0000010000000000000099 /* Sources/SleanShotApp/ScreenshotSavePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000098 /* Sources/SleanShotApp/ScreenshotSavePreferences.swift */; };
+		1A0000010000000000000097 /* Sources/SleanShotApp/LoginItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000096 /* Sources/SleanShotApp/LoginItemService.swift */; };
 		1A000001000000000000000A /* Sources/SleanShotApp/AppAreaSelectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000010000000000000019 /* Sources/SleanShotApp/AppAreaSelectionService.swift */; };
 		1A000001000000000000000B /* Sources/SleanShotApp/SelectionOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001A /* Sources/SleanShotApp/SelectionOverlayWindow.swift */; };
 		1A000001000000000000000C /* Sources/SleanShotApp/SelectionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000001000000000000001B /* Sources/SleanShotApp/SelectionOverlayView.swift */; };
@@ -39,6 +41,8 @@
 		1A0000010000000000000016 /* Sources/SleanShotApp/AppOverlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppOverlayManager.swift; sourceTree = "<group>"; };
 		1A0000010000000000000017 /* Sources/SleanShotApp/PinnedOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/PinnedOverlayView.swift; sourceTree = "<group>"; };
 		1A0000010000000000000018 /* Sources/SleanShotApp/AppFileExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppFileExportService.swift; sourceTree = "<group>"; };
+		1A0000010000000000000098 /* Sources/SleanShotApp/ScreenshotSavePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/ScreenshotSavePreferences.swift; sourceTree = "<group>"; };
+		1A0000010000000000000096 /* Sources/SleanShotApp/LoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/LoginItemService.swift; sourceTree = "<group>"; };
 		1A0000010000000000000019 /* Sources/SleanShotApp/AppAreaSelectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/AppAreaSelectionService.swift; sourceTree = "<group>"; };
 		1A000001000000000000001A /* Sources/SleanShotApp/SelectionOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SelectionOverlayWindow.swift; sourceTree = "<group>"; };
 		1A000001000000000000001B /* Sources/SleanShotApp/SelectionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/SleanShotApp/SelectionOverlayView.swift; sourceTree = "<group>"; };
@@ -85,6 +89,8 @@
 				1A0000010000000000000016 /* Sources/SleanShotApp/AppOverlayManager.swift */,
 				1A0000010000000000000017 /* Sources/SleanShotApp/PinnedOverlayView.swift */,
 				1A0000010000000000000018 /* Sources/SleanShotApp/AppFileExportService.swift */,
+				1A0000010000000000000098 /* Sources/SleanShotApp/ScreenshotSavePreferences.swift */,
+				1A0000010000000000000096 /* Sources/SleanShotApp/LoginItemService.swift */,
 				1A0000010000000000000019 /* Sources/SleanShotApp/AppAreaSelectionService.swift */,
 				1A000001000000000000001A /* Sources/SleanShotApp/SelectionOverlayWindow.swift */,
 				1A000001000000000000001B /* Sources/SleanShotApp/SelectionOverlayView.swift */,
@@ -198,6 +204,8 @@
 				1A0000010000000000000007 /* Sources/SleanShotApp/AppOverlayManager.swift in Sources */,
 				1A0000010000000000000008 /* Sources/SleanShotApp/PinnedOverlayView.swift in Sources */,
 				1A0000010000000000000009 /* Sources/SleanShotApp/AppFileExportService.swift in Sources */,
+				1A0000010000000000000099 /* Sources/SleanShotApp/ScreenshotSavePreferences.swift in Sources */,
+				1A0000010000000000000097 /* Sources/SleanShotApp/LoginItemService.swift in Sources */,
 				1A000001000000000000000A /* Sources/SleanShotApp/AppAreaSelectionService.swift in Sources */,
 				1A000001000000000000000B /* Sources/SleanShotApp/SelectionOverlayWindow.swift in Sources */,
 				1A000001000000000000000C /* Sources/SleanShotApp/SelectionOverlayView.swift in Sources */,
@@ -358,11 +366,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = C658E6CC7D1C6208363BEE9EEC38E1E4815893DD;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = H9AQ2SA8YL;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

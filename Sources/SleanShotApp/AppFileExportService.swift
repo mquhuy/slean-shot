@@ -12,10 +12,19 @@ final class AppFileExportService: FileExportService {
     }
 
     func saveImageData(_ data: Data) {
+        if let target = ScreenshotSavePreferences.autoSaveURL() {
+            do {
+                try data.write(to: target)
+            } catch {
+                alertPresenter.show(message: "Save failed. Please try again.")
+            }
+            return
+        }
+
         let panel = NSSavePanel()
         panel.allowedContentTypes = [UTType.png]
         panel.canCreateDirectories = true
-        panel.nameFieldStringValue = "Screenshot.png"
+        ScreenshotSavePreferences.configure(panel)
 
         let response = panel.runModal()
         guard response == .OK, let url = panel.url else {
@@ -36,6 +45,9 @@ final class AppFileExportService: FileExportService {
         }
         panel.canCreateDirectories = true
         panel.nameFieldStringValue = suggestedName
+        if let directory = ScreenshotSavePreferences.defaultDirectoryURL() {
+            panel.directoryURL = directory
+        }
 
         let response = panel.runModal()
         guard response == .OK, let destinationURL = panel.url else {

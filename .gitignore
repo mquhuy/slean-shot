@@ -26,3 +26,4 @@ skills-lock.json
 *.swp
 *.swo
 *~
+build/

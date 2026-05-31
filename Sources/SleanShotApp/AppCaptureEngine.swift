@@ -95,16 +95,17 @@ public struct AppCaptureEngine: CaptureEngine {
         }
 
         let scale = area.display.scaleFactor
-        // Convert from AppKit screen coords (bottom-left origin) to display pixel coords (top-left origin)
-        let sourceX = (area.rect.x - area.display.frame.x) * scale
-        let displayPixelHeight = area.display.frame.height * scale
-        let selectionTop = (area.rect.y + area.rect.height - area.display.frame.y) * scale
-        let sourceY = displayPixelHeight - selectionTop
+        // sourceRect is in points within the display (top-left origin). Convert
+        // from AppKit screen coords (bottom-left origin) WITHOUT scaling — only
+        // the output buffer (config.width/height) is in pixels.
+        let sourceX = area.rect.x - area.display.frame.x
+        let selectionTop = area.rect.y + area.rect.height - area.display.frame.y
+        let sourceY = area.display.frame.height - selectionTop
         let sourceRect = CGRect(
             x: sourceX,
             y: sourceY,
-            width: area.rect.width * scale,
-            height: area.rect.height * scale
+            width: area.rect.width,
+            height: area.rect.height
         )
 
         let config = SCStreamConfiguration()

@@ -422,7 +422,7 @@ The following features are out of scope unless explicitly requested:
 
 ## License
 
-[Add your license information here]
+SleanShot is released under the [MIT License](LICENSE).
 
 ## Support
 

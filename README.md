@@ -435,3 +435,5 @@ For questions or issues:
 ---
 
 Made with care for macOS. Contributions welcome.
+
+If you find SleanShot useful, consider [buying me a coffee](https://buymeacoffee.com/mquhuy) ☕

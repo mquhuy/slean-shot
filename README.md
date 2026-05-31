@@ -17,6 +17,7 @@ SleanShot streamlines your screenshot and screen recording workflow. After captu
 - **Screenshot Annotation**: Draw and markup screenshots using native PencilKit
 - **One-Click Actions**: Copy to clipboard, save to file, edit, or delete
 - **Auto-Copy Setting**: Optionally copy screenshots to clipboard immediately
+- **Customizable Global Shortcuts**: Assign your own system-wide hotkeys (none set by default), or reuse the macOS screenshot combos (⌘⇧3 / ⌘⇧4 / ⌘⇧5)
 - **Multi-Monitor Support**: Works seamlessly across multiple displays
 - **Menu Bar Integration**: Control the app from the macOS menu bar
 
@@ -56,32 +57,53 @@ SleanShot is built with Swift 6 and SwiftUI. The project uses Swift Package Mana
 
 On first launch, macOS will request Screen Recording permission. This is required for the app to function. You'll see a prompt to allow SleanShot access to screen content.
 
+A **welcome tip** also appears, explaining that SleanShot starts with no keyboard shortcuts and how to set them. Untick "Open this at startup" to stop it showing on future launches; reopen it anytime from Settings.
+
 ## Usage Guide
+
+> **Keyboard shortcuts are off by default.** Trigger any capture from the menu bar, or assign your own global shortcuts in Settings (see [Keyboard Shortcuts](#keyboard-shortcuts)). Shortcuts shown below are only active if you've assigned them.
 
 ### Taking Screenshots
 
 **Full-Screen Screenshot**:
-- Press `Cmd+Ctrl+A` or select from the menu bar
+- Select **Screenshot Full Screen** from the menu bar (or your assigned shortcut)
 - The screenshot appears as a pinned overlay
 
 **Area Screenshot**:
-- Press `Cmd+Ctrl+S` or select from the menu bar
+- Select **Screenshot Area** from the menu bar (or your assigned shortcut)
 - Click and drag to select the region
 - The screenshot appears as a pinned overlay
 
 ### Recording Your Screen
 
 **Full-Screen Recording**:
-- Press `Cmd+Ctrl+R` or select from the menu bar
+- Select **Record Full Screen** from the menu bar (or your assigned shortcut)
 - Recording indicator appears in the corner
-- Press `Cmd+Ctrl+R` again or click "Stop Recording" in the menu to finish
+- Click "Stop Recording" in the menu (or use your shortcut) to finish
 - The recording appears as a pinned overlay with a play badge
 
 **Area Recording**:
-- Press `Cmd+Ctrl+W` or select from the menu bar
+- Select **Record Area** from the menu bar (or your assigned shortcut)
 - Click and drag to select the recording region
 - A red border shows the recording frame
-- Press `Cmd+Ctrl+W` again or click "Stop Recording" to finish
+- Click "Stop Recording" (or use your shortcut) to finish
+
+### Keyboard Shortcuts
+
+SleanShot ships with **no global shortcuts assigned**, so it never clashes with your existing setup out of the box. Configure them in Settings → Global Shortcuts:
+
+- **Set your own**: Click a command's field and press the key combination. Shortcuts work system-wide. Use the ✕ to clear one.
+- **Use the macOS combos**: The "Use macOS shortcuts (⌘⇧3 / ⌘⇧4 / ⌘⇧5)" button assigns the familiar system screenshot keys to SleanShot.
+
+macOS reserves ⌘⇧3 / ⌘⇧4 / ⌘⇧5 for its own screenshots and gives them priority over apps. To use those combos in SleanShot you must **first disable them in macOS**, then assign them here (order matters — otherwise the system intercepts the keypress). The "Show me how" button walks through exactly which entries to uncheck:
+
+| Combo | macOS entry to uncheck | SleanShot use |
+|-------|------------------------|---------------|
+| ⌘⇧3 | "Save picture of screen as a file" | Screenshot Full Screen |
+| ⌘⇧4 | "Save picture of selected area as a file" | Screenshot Area |
+| ⌘⇧5 | "Screenshot and recording options" | Record Area |
+
+Changes take effect immediately — no restart needed.
 
 ### Working with Pinned Items
 
@@ -105,7 +127,10 @@ Each pinned overlay (screenshot or recording) provides four quick actions:
 
 Access Settings from the menu bar or press `Cmd+,`:
 
-- **Auto-Copy Screenshots**: When enabled, screenshots are automatically copied to clipboard after capture (disabled by default)
+- **Auto-Copy Screenshots**: When enabled, screenshots are automatically copied to clipboard after capture
+- **Recording Border**: Toggle the red frame drawn around the recording area
+- **Global Shortcuts**: Assign, clear, or apply the macOS screenshot combos for each capture command (see [Keyboard Shortcuts](#keyboard-shortcuts))
+- **Welcome Tip**: Toggle the startup tip, or reopen it on demand
 
 ## Architecture
 
@@ -404,6 +429,13 @@ For questions or issues:
 ## Changelog
 
 See `HISTORY.md` for detailed project milestone and feature logs.
+
+### Recent Updates (2026-05-31)
+
+- No global shortcuts assigned by default — assign your own in Settings
+- Added a startup welcome tip explaining shortcut setup (toggleable, reopenable from Settings)
+- Added a "Show me how" guide for disabling the macOS screenshot shortcuts, naming the exact entries to uncheck
+- Added a one-click "Use macOS shortcuts (⌘⇧3 / ⌘⇧4 / ⌘⇧5)" button
 
 ### Recent Updates (2026-05-30)
 

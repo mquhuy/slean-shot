@@ -9,6 +9,10 @@
 A native macOS app that makes screenshots and screen recordings easier by capturing media, keeping captured items pinned in a screen corner, and letting users annotate, save, copy, or discard them instantly.
 </p>
 
+<p align="center">
+  <img src="assets/demo.gif" alt="SleanShot demo" width="720">
+</p>
+
 ## Overview
 
 SleanShot streamlines your screenshot and screen recording workflow. After capturing, your media appears as a floating overlay in the screen corner—ready to annotate, save, copy to clipboard, or delete. All without cluttering your desktop or requiring additional window management.

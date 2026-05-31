@@ -60,7 +60,7 @@ final class AppAreaSelectionService: AreaSelectionService {
             self?.finish(nil)
         }
 
-        let hostingView = NSHostingView(rootView: SelectionOverlayView(display: display) { [weak self] area in
+        let hostingView = CrosshairHostingView(rootView: SelectionOverlayView(display: display) { [weak self] area in
             self?.finish(area)
         })
         hostingView.frame = NSRect(origin: .zero, size: screen.frame.size)

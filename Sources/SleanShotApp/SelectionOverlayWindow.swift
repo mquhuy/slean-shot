@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 final class SelectionOverlayWindow: NSWindow {
     var onCancel: (() -> Void)?
@@ -12,5 +13,14 @@ final class SelectionOverlayWindow: NSWindow {
         } else {
             super.keyDown(with: event)
         }
+    }
+}
+
+/// Hosting view that shows the crosshair cursor over its whole bounds,
+/// matching the macOS screenshot area-selection tool.
+final class CrosshairHostingView<Content: View>: NSHostingView<Content> {
+    override func resetCursorRects() {
+        super.resetCursorRects()
+        addCursorRect(bounds, cursor: .crosshair)
     }
 }

@@ -252,7 +252,6 @@ SleanShot/
 │       └── main.swift               # Test runner
 │
 ├── CLAUDE.md                        # Development guidelines
-├── HISTORY.md                       # Project milestone log
 └── README.md                        # This file
 ```
 
@@ -350,7 +349,7 @@ Before submitting a pull request:
 - [ ] All tests pass (run `swift test`)
 - [ ] Changes follow Swift 6 concurrency guidelines
 - [ ] New features are tested on single and multi-monitor setups
-- [ ] Documentation is updated (HISTORY.md, code comments)
+- [ ] Documentation is updated (code comments)
 - [ ] No unrelated refactoring is included
 - [ ] Commit messages are clear and descriptive
 
@@ -429,29 +428,9 @@ SleanShot is released under the [MIT License](LICENSE).
 For questions or issues:
 
 1. Check `CLAUDE.md` for project guidelines
-2. Review `HISTORY.md` for recent changes
+2. Check for recent changes in the repository
 3. File an issue with detailed reproduction steps
 4. Check existing issues for similar problems
-
-## Changelog
-
-See `HISTORY.md` for detailed project milestone and feature logs.
-
-### Recent Updates (2026-05-31)
-
-- No global shortcuts assigned by default — assign your own in Settings
-- Added a startup welcome tip explaining shortcut setup (toggleable, reopenable from Settings)
-- Added a "Show me how" guide for disabling the macOS screenshot shortcuts, naming the exact entries to uncheck
-- Added a one-click "Use macOS shortcuts (⌘⇧3 / ⌘⇧4 / ⌘⇧5)" button
-
-### Recent Updates (2026-05-30)
-
-- Completed MVP roadmap (all 11 steps)
-- Added screen recording with full-screen and area support
-- Implemented reliable overlay exclusion from captures
-- Added settings screen with auto-copy toggle
-- Full Swift 6 strict concurrency support
-- Comprehensive core logic test suite
 
 ---
 

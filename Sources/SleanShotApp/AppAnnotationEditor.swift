@@ -412,6 +412,14 @@ private struct AnnotationEditorView: View {
                 cgCtx.beginPath()
                 cgCtx.addEllipse(in: rect)
                 cgCtx.strokePath()
+            case .rectangle:
+                let rect = CGRect(x: min(pts[0].x, pts[1].x),
+                                  y: min(pts[0].y, pts[1].y),
+                                  width: abs(pts[1].x - pts[0].x),
+                                  height: abs(pts[1].y - pts[0].y))
+                cgCtx.beginPath()
+                cgCtx.addRect(rect)
+                cgCtx.strokePath()
             case .text:
                 break
             }

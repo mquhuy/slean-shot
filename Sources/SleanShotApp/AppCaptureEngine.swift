@@ -50,9 +50,9 @@ public struct AppCaptureEngine: CaptureEngine {
                 content = try await SCShareableContent.current
             }
         } catch {
-            throw CaptureError.captureFailed("Could not get shareable content")
+            throw CaptureError.captureFailed("Could not get shareable content: \(error.localizedDescription)")
         }
-        
+
         guard let display = content.displays.first else {
             throw CaptureError.captureFailed("No displays found")
         }
@@ -87,7 +87,7 @@ public struct AppCaptureEngine: CaptureEngine {
                 content = try await SCShareableContent.current
             }
         } catch {
-            throw CaptureError.captureFailed("Could not get shareable content")
+            throw CaptureError.captureFailed("Could not get shareable content: \(error.localizedDescription)")
         }
 
         guard let display = content.displays.first(where: { $0.displayID == area.display.id }) ?? content.displays.first else {

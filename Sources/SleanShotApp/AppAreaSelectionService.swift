@@ -81,9 +81,13 @@ final class AppAreaSelectionService: AreaSelectionService {
         selectionGate.end()
         let windowsToClose = activeWindows
         activeWindows.removeAll()
-        c?.resume(returning: area)
+        // Close windows synchronously first so ScreenCaptureKit doesn't see
+        // the full-screen overlay when captureArea calls SCShareableContent.
+        windowsToClose.forEach { $0.orderOut(nil) }
+        // Yield one run-loop cycle to let the window server process the removal
+        // before capture starts.
         DispatchQueue.main.async {
-            windowsToClose.forEach { $0.orderOut(nil) }
+            c?.resume(returning: area)
         }
     }
 

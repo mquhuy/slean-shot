@@ -74,6 +74,15 @@ final class AppServices: ObservableObject {
         DispatchQueue.main.async {
             WelcomeTipPresenter.shared.showIfEnabled()
         }
+        // Warm-up: verify SCShareableContent is reachable now so a stale TCC
+        // entry surfaces at launch instead of mid-capture.
+        Task { @MainActor [weak self] in
+            guard let self, CGPreflightScreenCaptureAccess() else { return }
+            if let error = await AppPermissionManager().validateScreenCaptureAccess() {
+                logger.warning("SCKit warm-up failed: \(error)")
+                alertPresenter.show(message: "Screen Recording permission needs to be refreshed.\n\nOpen System Settings → Privacy & Security → Screen Recording, toggle SleanShot off then on, then restart SleanShot.\n\nError: \(error.localizedDescription)")
+            }
+        }
         hotkeyObserver = NotificationCenter.default.addObserver(
             forName: .sleanShotHotkeysChanged,
             object: nil,

@@ -59,12 +59,15 @@ final class AppAnnotationEditor: AnnotationEditing {
                 rootView: AnnotationEditorView(
                     image: image,
                     flattenedSize: imageSize,
-                    onSave: { [weak window] annotatedData in
+                    onSave: { [weak self, weak window] annotatedData in
                         guard let window = window else { return }
                         let url: URL
+                        let wasAutoSave: Bool
                         if let target = ScreenshotSavePreferences.autoSaveURL() {
                             url = target
+                            wasAutoSave = true
                         } else {
+                            wasAutoSave = false
                             let panel = NSSavePanel()
                             panel.allowedContentTypes = [.png]
                             panel.canCreateDirectories = true
@@ -78,6 +81,9 @@ final class AppAnnotationEditor: AnnotationEditing {
                             try annotatedData.write(to: url)
                             continuation.resume(returning: EditorAction.saved)
                             window.orderOut(nil)
+                            if wasAutoSave {
+                                self?.alertPresenter.show(message: "Saved to \(url.path)")
+                            }
                         } catch {
                             let alert = NSAlert()
                             alert.messageText = "Save failed. Please try again."

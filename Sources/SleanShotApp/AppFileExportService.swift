@@ -15,6 +15,7 @@ final class AppFileExportService: FileExportService {
         if let target = ScreenshotSavePreferences.autoSaveURL() {
             do {
                 try data.write(to: target)
+                alertPresenter.show(message: "Saved to \(target.path)")
             } catch {
                 alertPresenter.show(message: "Save failed. Please try again.")
             }
